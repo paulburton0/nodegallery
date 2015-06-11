@@ -14,67 +14,89 @@ exports.getList = function(dir, relDir, start, cb){
             return cb(err);
         }
 
-        files = files.slice(start, Number(start) + 12);
+        var dirContents = [];
+        var item = {};
+
         files.map(function(item){
-            if(item == undefined || /^\./.test(item)){
+            if(item == undefined || /^\./.test(item) || /\.html$/.test(item) || /^thumbs$/.test(item)){
                 return;
             }
 
+            item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
+
+            var fileType = fs.statSync(item.absolutePath).isFile();
+            var dirType = fs.statSync(item.absolutePath).isDirectory();
+
+            if(fileType){
+                item.type = 'file';
+                dirContents.push(item);
+            }
             else{
-                var item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
-                
-                var fileType = fs.lstatSync(item.absolutePath).isFile();
-                var dirType = fs.lstatSync(item.absolutePath).isDirectory();
+                item.type = 'directory';
+                dirContents.unshift(item);
+            }
+            
+        })
 
-                if(fileType){
-                    item.type = 'file';
-                    item.thumb = path.join('/nodegallery_cache', relDir, item.name);
+        dirContents = dirContents.slice(start, Number(start) + 12);
 
-                    mkdirp(path.join(__dirname, 'public', 'nodegallery_cache', relDir), function(err){
+
+        dirContents.map(function(item){
+            if(item.type == 'file'){
+                item.thumb = path.join('/nodegallery_cache', relDir, item.name);
+
+                var thumbDir = path.join(__dirname, 'public', 'nodegallery_cache', relDir);
+                    mkdirp(thumbDir, function(err){
                         if(err){
                             return err;
                         }
+                        var thumbPath = path.join(__dirname, 'public', item.thumb + '.png');
 
-                        gm(item.absolutePath + '[0]')
-                        .size(function (err, features) {
-                            if (err){
-                                return err;
-                            }
-                            
-                            if(features.width > features.height){
-                                gm(item.absolutePath)
-                                .resize(200, null) 
-                                .write(path.join(__dirname, 'public', item.thumb + '.png'), function (err) {
-                                    if (err){
-                                        return err;      
-                                    }
-                                });
+                        fs.stat(thumbPath, function(err, stats){
+                            if(err){
+                                if(err.code == 'ENOENT'){
+                                    gm(item.absolutePath)
+                                    .size(function (err, features) {
+                                        if (err){
+                                            return err;
+                                        }
+                                        
+                                        if(features.width > features.height){
+                                            gm(item.absolutePath + '[0]')
+                                            .resize(200, null) 
+                                            .write(thumbPath, function (err) {
+                                                if (err){
+                                                    return err;      
+                                                }
+                                            });
+                                        }
+                                        else{
+                                            gm(item.absolutePath + '[0]')
+                                            .resize(null, 200)
+                                            .write(thumbPath, function (err) {
+                                                if (err){
+                                                    return err;      
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                else{
+                                    return err;
+                                }
                             }
                             else{
-                                gm(item.absolutePath + '[0]')
-                                .resize(null, 200)
-                                .write(path.join(__dirname, 'public', item.thumb + '.png'), function (err) {
-                                    if (err){
-                                        return err;      
-                                    }
-                                });
+                                return;
                             }
-
                         });
-
                     });
-                }
-
-                if(dirType){
-                    item.type = 'directory';
-                }
-
                 results.push(item);
+            }
 
+            else if(item.type == 'directory'){
+                results.unshift(item);
             }
         });
-
         return cb(null, results);
-
     });
 }
