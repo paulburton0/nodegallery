@@ -1,0 +1,36 @@
+extends layout
+block content
+  .breadcrumb
+        each crumb in breadcrumbs
+            li
+                a(href=crumb.path) #{crumb.name}
+  div.container
+  -   var path
+  -   var pathslice = pathname.split('/').slice(0,-1);
+  -   if(pathslice == ''){ 
+  -      path = '/';
+  -   }
+  -   else{
+  -      path = pathslice.join('/'); 
+  -   }
+      ul.pager
+        li.previous
+            a(href='previous') Previous
+        li 
+            a(href=path + '?start=' + start) Up
+        li.next
+            a(href='next') Next
+    div.content
+        .panel.panel-default
+            .panel-body-centered
+                .embed-responsive.embed-responsive-4by3
+                    video(controls=true preload=true).embed-responsive-item
+                        source(src=webm type='video/webm')
+    ul.pager
+    li.previous
+        a(href='previous') Previous
+    li 
+        a(href=path + '?start=' + start) Up
+    li.next
+        a(href='next') Next
+  div.footer
