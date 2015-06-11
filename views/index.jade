@@ -1,0 +1,51 @@
+extends layout
+block content
+  - var breadcrumbs = pathname.split('/');
+  - breadcrumbs[0] = '/';
+  .breadcrumb
+        each elem in breadcrumbs
+            li
+                a(href=elem) #{elem}
+  div.container
+    ul.pager
+        - var prev = Number(start) - 12;
+        - var next = Number(start) + 12;
+        if prev < 0
+            li.previous.disabled 
+                a(href='#') Previous
+        else
+            li.previous
+                a(href=pathname + '?start=' + prev) Previous
+        li.next
+            a(href=pathname + '?start=' + next) Next
+    div.content
+        - var colnum = 1;
+        each item in content 
+            .col-sm-6.col-md-4.col-lg-3       
+                if item.type == "directory"
+                    a(href="#{item.relativePath}").thumbnail 
+                        span(style='font-size: 12em').glyphicon.glyphicon-folder-open
+                        br
+                        span #{item.name}
+                else
+                    a(href=item.relativePath + '?start=' + start).thumbnail 
+                        img(src=item.thumb + '.png')
+            - if(colnum % 2 == 0)
+                .clearfix.visible-sm-block
+            - if(colnum % 3 == 0)
+                .clearfix.visible-md-block
+            - if(colnum % 4 == 0)
+                .clearfix.visible-lg-block
+            - colnum++
+
+        .clearfix
+        ul.pager
+            if prev < 0
+                li.previous.disabled 
+                    a(href='#') Previous
+            else
+                li.previous
+                    a(href=pathname + '?start=' + prev) Previous
+            li.next
+                a(href=pathname + '?start=' + next) Next
+  div.footer

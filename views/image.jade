@@ -1,0 +1,38 @@
+extends layout
+block content
+  - var breadcrumbs = pathname.split('/');
+  - breadcrumbs[0] = '/';
+  .breadcrumb
+        each elem in breadcrumbs
+            li
+                a(href=elem) #{elem}
+  div.container
+  -   var path
+  -   var pathslice = pathname.split('/').slice(0,-1);
+  -   if(pathslice == ''){ 
+  -      path = '/';
+  -   }
+  -   else{
+  -      path = pathslice.join('/'); 
+  -   }
+      ul.pager
+        li.previous
+            a(href='previous') Previous
+        li 
+            a(href=path + '?start=' + start) Up
+        li.next
+            a(href='next') Next
+    div.content
+        .panel.panel-default
+            img(src=image).img-responsive.center-block
+    ul.pager
+    li.previous
+        a(href='previous') Previous
+    li 
+        a(href=path + '?start=' + start) Up
+    li.next
+        a(href='next') Next
+  p.
+    Path: #{path}
+    Pathname: #{pathname}
+  div.footer
