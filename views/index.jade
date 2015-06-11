@@ -1,12 +1,10 @@
 extends layout
 block content
-  - var breadcrumbs = pathname.split('/');
-  - breadcrumbs[0] = '/';
-  .breadcrumb
-        each elem in breadcrumbs
-            li
-                a(href=elem) #{elem}
-  div.container
+    div.container
+        .breadcrumb
+            each crumb in breadcrumbs
+                li
+                    a(href=crumb.path) #{crumb.name}
     ul.pager
         - var prev = Number(start) - 12;
         - var next = Number(start) + 12;
@@ -16,14 +14,19 @@ block content
         else
             li.previous
                 a(href=pathname + '?start=' + prev) Previous
-        li.next
-            a(href=pathname + '?start=' + next) Next
+        
+        if(content.length < 12)
+            li.next.disabled
+                a(href='#') Next
+        else
+            li.next
+                a(href=pathname + '?start=' + next) Next
     div.content
         - var colnum = 1;
         each item in content 
-            .col-sm-6.col-md-4.col-lg-3       
+            .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
                 if item.type == "directory"
-                    a(href="#{item.relativePath}").thumbnail 
+                    a(href="#{item.relativePath}").thumbnail
                         span(style='font-size: 12em').glyphicon.glyphicon-folder-open
                         br
                         span #{item.name}
@@ -46,6 +49,10 @@ block content
             else
                 li.previous
                     a(href=pathname + '?start=' + prev) Previous
-            li.next
-                a(href=pathname + '?start=' + next) Next
+            - if(content.length < 12)
+                li.next.disabled
+                    a(href='#') Next
+            - else
+                li.next
+                    a(href=pathname + '?start=' + next) Next
   div.footer

@@ -1,11 +1,9 @@
 extends layout
 block content
-  - var breadcrumbs = pathname.split('/');
-  - breadcrumbs[0] = '/';
   .breadcrumb
-        each elem in breadcrumbs
+        each crumb in breadcrumbs
             li
-                a(href=elem) #{elem}
+                a(href=crumb.path) #{crumb.name}
   div.container
   -   var path
   -   var pathslice = pathname.split('/').slice(0,-1);
@@ -32,7 +30,4 @@ block content
         a(href=path + '?start=' + start) Up
     li.next
         a(href='next') Next
-  p.
-    Path: #{path}
-    Pathname: #{pathname}
   div.footer
