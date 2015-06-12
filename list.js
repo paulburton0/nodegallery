@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var gm = require('gm');
+var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 
 var exports = module.exports = {};
@@ -17,7 +18,7 @@ exports.getList = function(dir, relDir, start, cb){
         var dirContents = [];
         var item = {};
 
-        files.map(function(item){
+        files.map(function(item, index){
             if(item == undefined || /^\./.test(item) || /\.html$/.test(item) || /^thumbs$/.test(item)){
                 return;
             }
@@ -29,6 +30,12 @@ exports.getList = function(dir, relDir, start, cb){
 
             if(fileType){
                 item.type = 'file';
+                //if(index <= files.length){
+                    //item.next = path.join(relDir, files[index + 1].relativePath);
+                //}
+                //if(index > 0){
+                    //item.prev = path.join(relDir, files[index - 1].relativePath);
+                //}
                 dirContents.push(item);
             }
             else{
@@ -38,71 +45,92 @@ exports.getList = function(dir, relDir, start, cb){
             
         })
 
-        dirContents = dirContents.slice(start, Number(start) + 12);
+        dirContentsSlice = dirContents.slice(start, Number(start) + 12);
+
+        if(! dirContents[Number(start) + 13]){
+            end = true;
+        }
+        else{
+            end = false;
+        }
 
 
-        dirContents.map(function(item){
+        dirContentsSlice.map(function(item){
             if(item.type == 'file'){
-                item.thumb = path.join('/nodegallery_cache', relDir, item.name);
 
                 var thumbDir = path.join(__dirname, 'public', 'nodegallery_cache', relDir);
+
+                item.thumb = path.join('/nodegallery_cache', relDir, item.name + '.png');
+                item.thumbAbsolutePath = path.join(thumbDir, item.name + '.png');
+
                     mkdirp(thumbDir, function(err){
                         if(err){
                             return err;
                         }
-                        var thumbPath = path.join(__dirname, 'public', item.thumb + '.png');
 
-                        fs.stat(thumbPath, function(err, stats){
+                        fs.stat(item.thumbAbsolutePath, function(err, stats){
                             if(err){
                                 if(err.code == 'ENOENT'){
-                                    gm(item.absolutePath)
-                                    .size(function (err, features) {
-                                        if (err){
-                                            return err;
-                                        }
-                                        
-                                        if(features.width > features.height){
-                                            gm(item.absolutePath + '[0]')
-                                            .resize(200, null) 
-                                            .write(thumbPath, function (err) {
-                                                if (err){
-                                                    return err;      
-                                                }
-                                                gm(thumbPath)
-                                                .size(function (err, features) {
+                                    if(/\.webm$/.test(item.absolutePath)){
+                                        ffmpeg(item.absolutePath)
+                                            .on('error', function(err, stdout, stderr){
+                                                return err;
+                                            })
+                                            .seekInput('00:00:05.0')
+                                            .frames(1)
+                                            .size('200x?')
+                                            .save(item.thumbAbsolutePath);
+                                    }
+                                    else{
+                                        gm(item.absolutePath)
+                                        .size(function (err, features) {
+                                            if (err){
+                                                return err;
+                                            }
+                                            
+                                            if(features.width > features.height){
+                                                gm(item.absolutePath + '[0]')
+                                                .resize(200, null) 
+                                                .write(item.thumbAbsolutePath, function (err) {
                                                     if (err){
-                                                        return err;
+                                                        return err;      
                                                     }
-                                                    item.width = features.width;
-                                                    item.height = features.height;
+                                                    gm(item.thumbAbsolutePath)
+                                                    .size(function (err, features) {
+                                                        if (err){
+                                                            return err;
+                                                        }
+                                                        item.thumbWidth = features.width;
+                                                        item.thumbHeight = features.height;
+                                                    });
                                                 });
-                                            });
-                                        }
-                                        else{
-                                            gm(item.absolutePath + '[0]')
-                                            .resize(null, 200)
-                                            .write(thumbPath, function (err) {
-                                                if (err){
-                                                    return err;      
-                                                }
-                                                gm(thumbPath)
-                                                .size(function (err, features) {
+                                            }
+                                            else{
+                                                gm(item.absolutePath + '[0]')
+                                                .resize(null, 200)
+                                                .write(item.thumbAbsolutePath, function (err) {
                                                     if (err){
-                                                        return err;
+                                                        return err;      
                                                     }
-                                                    item.width = features.width;
-                                                    item.height = features.height;
+                                                    gm(item.thumbAbsolutePath)
+                                                    .size(function (err, features) {
+                                                        if (err){
+                                                            return err;
+                                                        }
+                                                        item.thumbWidth = features.width;
+                                                        item.thumbHeight = features.height;
+                                                    });
                                                 });
-                                            });
-                                        }
-                                    });
+                                            }
+                                        });
+                                    }
                                 }
                                 else{
                                     return err;
                                 }
                             }
                             else{
-                                gm(thumbPath)
+                                gm(item.thumb)
                                 .size(function (err, features) {
                                     if (err){
                                         return err;
@@ -121,6 +149,9 @@ exports.getList = function(dir, relDir, start, cb){
                 results.unshift(item);
             }
         });
+        if(end){
+            results.push('end');
+        }
         return cb(null, results);
     });
 }

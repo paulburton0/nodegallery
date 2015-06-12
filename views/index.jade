@@ -1,5 +1,8 @@
 extends layout
 block content
+    if content[content.length - 1] == 'end'
+        - var end = true;
+        - content.pop();
     .breadcrumb
         each crumb in breadcrumbs
             li
@@ -16,10 +19,10 @@ block content
                 li.previous
                     a(href=pathname + '?start=' + prev) Previous
             
-            if(content.length < 12)
+            - if(content.length < 12 || end === true)
                 li.next.disabled
                     a(href='#') Next
-            else
+            - else
                 li.next
                     a(href=pathname + '?start=' + next) Next
         div.content
@@ -28,14 +31,12 @@ block content
                 .col-xs-12.col-sm-12.col-md-4.col-lg-3.center-block 
                     if item.type == "directory"
                         a(href="#{item.relativePath}").img-thumbnail
-                            span(style='font-size: 12em').glyphicon.glyphicon-folder-open
+                            span(style='font-size: 10em').glyphicon.glyphicon-folder-open
                             br
                             span #{item.name}
                     else
                         a(href=item.relativePath + '?start=' + start).img-thumbnail 
-                            img(src=item.thumb + '.png', width=item.width, height=item.height)
-              //- if(colnum % 2 == 0)
-              //-      .clearfix.visible-sm-block
+                            img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
                 - if(colnum % 3 == 0)
                     .clearfix.visible-md-block
                 - if(colnum % 4 == 0)
@@ -50,7 +51,7 @@ block content
                 else
                     li.previous
                         a(href=pathname + '?start=' + prev) Previous
-                - if(content.length < 12)
+                - if(content.length < 12 || end === true)
                     li.next.disabled
                         a(href='#') Next
                 - else
