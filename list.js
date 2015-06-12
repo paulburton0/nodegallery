@@ -30,12 +30,12 @@ exports.getList = function(dir, relDir, start, cb){
 
             if(fileType){
                 item.type = 'file';
-                if(index <= files.length){
-                    item.next = path.join(relDir, files[index + 1].relativePath);
-                }
-                if(index > 0){
-                    item.prev = path.join(relDir, files[index - 1].relativePath);
-                }
+                //if(index <= files.length){
+                    //item.next = path.join(relDir, files[index + 1].relativePath);
+                //}
+                //if(index > 0){
+                    //item.prev = path.join(relDir, files[index - 1].relativePath);
+                //}
                 dirContents.push(item);
             }
             else{
