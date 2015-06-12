@@ -30,12 +30,6 @@ exports.getList = function(dir, relDir, start, cb){
 
             if(fileType){
                 item.type = 'file';
-                //if(index <= files.length){
-                    //item.next = path.join(relDir, files[index + 1].relativePath);
-                //}
-                //if(index > 0){
-                    //item.prev = path.join(relDir, files[index - 1].relativePath);
-                //}
                 dirContents.push(item);
             }
             else{
@@ -54,6 +48,8 @@ exports.getList = function(dir, relDir, start, cb){
             end = false;
         }
 
+
+        var iterator = dirContentsSlice.length;
 
         dirContentsSlice.map(function(item){
             if(item.type == 'file'){
@@ -74,7 +70,18 @@ exports.getList = function(dir, relDir, start, cb){
                                     if(/\.webm$/.test(item.absolutePath)){
                                         ffmpeg(item.absolutePath)
                                             .on('error', function(err, stdout, stderr){
+                                                iterator--;
                                                 return err;
+                                            })
+                                            .on('end', function(){
+                                                iterator--;
+                                                results.push(item);
+                                                if(! iterator){
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
+                                                    return cb(null, results);
+                                                }
                                             })
                                             .seekInput('00:00:05.0')
                                             .frames(1)
@@ -82,44 +89,51 @@ exports.getList = function(dir, relDir, start, cb){
                                             .save(item.thumbAbsolutePath);
                                     }
                                     else{
+                                        console.log("Getting Dimensions of %s", item.name);
                                         gm(item.absolutePath)
                                         .size(function (err, features) {
                                             if (err){
+                                                iterator--;
+                                                console.log(err);
                                                 return err;
                                             }
                                             
                                             if(features.width > features.height){
+                                                console.log("Resizing %s", item.name);
                                                 gm(item.absolutePath + '[0]')
                                                 .resize(200, null) 
                                                 .write(item.thumbAbsolutePath, function (err) {
+                                                    iterator--;
                                                     if (err){
+                                                        console.log(err);
                                                         return err;      
                                                     }
-                                                    gm(item.thumbAbsolutePath)
-                                                    .size(function (err, features) {
-                                                        if (err){
-                                                            return err;
+                                                    results.push(item);
+                                                    if(! iterator){
+                                                        if(end){
+                                                            results.push('end');
                                                         }
-                                                        item.thumbWidth = features.width;
-                                                        item.thumbHeight = features.height;
-                                                    });
+                                                        return cb(null, results);
+                                                    }
                                                 });
                                             }
                                             else{
+                                                console.log("Resizing %s", item.name);
                                                 gm(item.absolutePath + '[0]')
                                                 .resize(null, 200)
                                                 .write(item.thumbAbsolutePath, function (err) {
+                                                    iterator--;
                                                     if (err){
+                                                        console.log(err);
                                                         return err;      
                                                     }
-                                                    gm(item.thumbAbsolutePath)
-                                                    .size(function (err, features) {
-                                                        if (err){
-                                                            return err;
+                                                    results.push(item);
+                                                    if(! iterator){
+                                                        if(end){
+                                                            results.push('end');
                                                         }
-                                                        item.thumbWidth = features.width;
-                                                        item.thumbHeight = features.height;
-                                                    });
+                                                        return cb(null, results);
+                                                    }
                                                 });
                                             }
                                         });
@@ -130,28 +144,29 @@ exports.getList = function(dir, relDir, start, cb){
                                 }
                             }
                             else{
-                                gm(item.thumb)
-                                .size(function (err, features) {
-                                    if (err){
-                                        return err;
+                                iterator--;
+                                results.push(item);
+                                if(! iterator){
+                                    if(end){
+                                        results.push('end');
                                     }
-                                    item.width = features.width;
-                                    item.height = features.height;
-                                });
-                                return;
+                                    return cb(null, results);
+                                }
                             }
                         });
                     });
-                results.push(item);
             }
 
             else if(item.type == 'directory'){
+                iterator--;
                 results.unshift(item);
+                if(! iterator){
+                    if(end){
+                        results.push('end');
+                    }
+                    return cb(null, results);
+                }
             }
         });
-        if(end){
-            results.push('end');
-        }
-        return cb(null, results);
     });
 }
