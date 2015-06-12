@@ -71,7 +71,14 @@ exports.getList = function(dir, relDir, start, cb){
                                         ffmpeg(item.absolutePath)
                                             .on('error', function(err, stdout, stderr){
                                                 iterator--;
-                                                return err;
+                                                item.thumb = '/images/NoThumb.png';
+                                                if(! iterator){
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
+                                                    return cb(null, results);
+                                                }
+                                                return;
                                             })
                                             .on('end', function(){
                                                 iterator--;
@@ -89,24 +96,36 @@ exports.getList = function(dir, relDir, start, cb){
                                             .save(item.thumbAbsolutePath);
                                     }
                                     else{
-                                        console.log("Getting Dimensions of %s", item.name);
                                         gm(item.absolutePath)
                                         .size(function (err, features) {
                                             if (err){
                                                 iterator--;
-                                                console.log(err);
-                                                return err;
+                                                item.thumb = '/images/NoThumb.png';
+                                                results.push(item);
+                                                if(! iterator){
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
+                                                    return cb(null, results);
+                                                }
+                                                return;
                                             }
                                             
                                             if(features.width > features.height){
-                                                console.log("Resizing %s", item.name);
                                                 gm(item.absolutePath + '[0]')
                                                 .resize(200, null) 
                                                 .write(item.thumbAbsolutePath, function (err) {
                                                     iterator--;
                                                     if (err){
-                                                        console.log(err);
-                                                        return err;      
+                                                        item.thumb = '/images/NoThumb.png';
+                                                        results.push(item);
+                                                        if(! iterator){
+                                                            if(end){
+                                                                results.push('end');
+                                                            }
+                                                            return cb(null, results);
+                                                        }
+                                                        return;
                                                     }
                                                     results.push(item);
                                                     if(! iterator){
@@ -118,14 +137,20 @@ exports.getList = function(dir, relDir, start, cb){
                                                 });
                                             }
                                             else{
-                                                console.log("Resizing %s", item.name);
                                                 gm(item.absolutePath + '[0]')
                                                 .resize(null, 200)
                                                 .write(item.thumbAbsolutePath, function (err) {
                                                     iterator--;
                                                     if (err){
-                                                        console.log(err);
-                                                        return err;      
+                                                        item.thumb = '/images/NoThumb.png';
+                                                        results.push(item);
+                                                        if(! iterator){
+                                                            if(end){
+                                                                results.push('end');
+                                                            }
+                                                            return cb(null, results);
+                                                        }
+                                                        return;
                                                     }
                                                     results.push(item);
                                                     if(! iterator){
