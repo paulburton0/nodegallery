@@ -1,58 +1,59 @@
 extends layout
 block content
+    .breadcrumb
+        each crumb in breadcrumbs
+            li
+                a(href=crumb.path) #{crumb.name}
+    .clearfix
     div.container
-        .breadcrumb
-            each crumb in breadcrumbs
-                li
-                    a(href=crumb.path) #{crumb.name}
-    ul.pager
-        - var prev = Number(start) - 12;
-        - var next = Number(start) + 12;
-        if prev < 0
-            li.previous.disabled 
-                a(href='#') Previous
-        else
-            li.previous
-                a(href=pathname + '?start=' + prev) Previous
-        
-        if(content.length < 12)
-            li.next.disabled
-                a(href='#') Next
-        else
-            li.next
-                a(href=pathname + '?start=' + next) Next
-    div.content
-        - var colnum = 1;
-        each item in content 
-            .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
-                if item.type == "directory"
-                    a(href="#{item.relativePath}").thumbnail
-                        span(style='font-size: 12em').glyphicon.glyphicon-folder-open
-                        br
-                        span #{item.name}
-                else
-                    a(href=item.relativePath + '?start=' + start).thumbnail 
-                        img(src=item.thumb + '.png')
-            - if(colnum % 2 == 0)
-                .clearfix.visible-sm-block
-            - if(colnum % 3 == 0)
-                .clearfix.visible-md-block
-            - if(colnum % 4 == 0)
-                .clearfix.visible-lg-block
-            - colnum++
-
-        .clearfix
         ul.pager
+            - var prev = Number(start) - 12;
+            - var next = Number(start) + 12;
             if prev < 0
                 li.previous.disabled 
                     a(href='#') Previous
             else
                 li.previous
                     a(href=pathname + '?start=' + prev) Previous
-            - if(content.length < 12)
+            
+            if(content.length < 12)
                 li.next.disabled
                     a(href='#') Next
-            - else
+            else
                 li.next
                     a(href=pathname + '?start=' + next) Next
+        div.content
+            - var colnum = 1;
+            each item in content 
+                .col-xs-12.col-sm-12.col-md-4.col-lg-3.center-block 
+                    if item.type == "directory"
+                        a(href="#{item.relativePath}").img-thumbnail
+                            span(style='font-size: 12em').glyphicon.glyphicon-folder-open
+                            br
+                            span #{item.name}
+                    else
+                        a(href=item.relativePath + '?start=' + start).img-thumbnail 
+                            img(src=item.thumb + '.png', width=item.width, height=item.height)
+              //- if(colnum % 2 == 0)
+              //-      .clearfix.visible-sm-block
+                - if(colnum % 3 == 0)
+                    .clearfix.visible-md-block
+                - if(colnum % 4 == 0)
+                    .clearfix.visible-lg-block
+                - colnum++
+
+            .clearfix
+            ul.pager
+                if prev < 0
+                    li.previous.disabled 
+                        a(href='#') Previous
+                else
+                    li.previous
+                        a(href=pathname + '?start=' + prev) Previous
+                - if(content.length < 12)
+                    li.next.disabled
+                        a(href='#') Next
+                - else
+                    li.next
+                        a(href=pathname + '?start=' + next) Next
   div.footer

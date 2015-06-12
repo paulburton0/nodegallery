@@ -68,6 +68,14 @@ exports.getList = function(dir, relDir, start, cb){
                                                 if (err){
                                                     return err;      
                                                 }
+                                                gm(thumbPath)
+                                                .size(function (err, features) {
+                                                    if (err){
+                                                        return err;
+                                                    }
+                                                    item.width = features.width;
+                                                    item.height = features.height;
+                                                });
                                             });
                                         }
                                         else{
@@ -77,6 +85,14 @@ exports.getList = function(dir, relDir, start, cb){
                                                 if (err){
                                                     return err;      
                                                 }
+                                                gm(thumbPath)
+                                                .size(function (err, features) {
+                                                    if (err){
+                                                        return err;
+                                                    }
+                                                    item.width = features.width;
+                                                    item.height = features.height;
+                                                });
                                             });
                                         }
                                     });
@@ -86,6 +102,14 @@ exports.getList = function(dir, relDir, start, cb){
                                 }
                             }
                             else{
+                                gm(thumbPath)
+                                .size(function (err, features) {
+                                    if (err){
+                                        return err;
+                                    }
+                                    item.width = features.width;
+                                    item.height = features.height;
+                                });
                                 return;
                             }
                         });
