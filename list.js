@@ -19,11 +19,16 @@ exports.getList = function(dir, relDir, start, cb){
         var item = {};
 
         files.map(function(item, index){
-            if(item == undefined || /^\./.test(item) || /\.html$/.test(item) || /^thumbs$/.test(item)){
+            item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
+            
+            if(item.name == undefined || /^\./.test(item.name) || /\.html$/.test(item.name) || /^thumbs$/.test(item.name)){
                 return;
             }
 
-            item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
+            if(fs.statSync(item.absolutePath).isFile() && ! /\.(jpe?g|png|gif|bmp|webm)/i.test(item.name)){
+                return;
+            }
+
 
             var fileType = fs.statSync(item.absolutePath).isFile();
             var dirType = fs.statSync(item.absolutePath).isDirectory();

@@ -23,7 +23,7 @@ function getBreadcrumbs(pathname){
     /* GET home page. */
 router.get(/\/.*/, function(req, res, next) {
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.(jpe?g|png|bmp|gif|webm)$/.test(pathname)){
+    if(/\.(jpe?g|png|bmp|gif|webm)$/i.test(pathname)){
         next();
     }
     var start = url.parse(req.originalUrl, true).query.start;
@@ -37,7 +37,7 @@ router.get(/\/.*/, function(req, res, next) {
 
 }, function(req, res, next){
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.webm$/.test(pathname)){
+    if(/\.webm$/i.test(pathname)){
         next();
     }
     var start = url.parse(req.originalUrl, true).query.start;
