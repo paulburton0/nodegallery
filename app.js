@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 //var error= require('./routes/error');
 var index = require('./routes/index');
 var login = require('./routes/login');
+var logout = require('./routes/logout');
 var app = express();
 
 // view engine setup
@@ -21,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/logout', logout);
 app.all('/login', login);
 app.use(/\/.*/, index);
 
