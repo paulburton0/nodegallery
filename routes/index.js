@@ -20,9 +20,13 @@ function getBreadcrumbs(pathname){
 }
 
     /* GET home page. */
-router.get(/\/.*/, function(req, res, next) {
+router.get(/\/.*/, function(req, res, next){
+    if(! req.cookies.nodegallery){
+        req.pathname = '/login';
+        res.redirect('/login');
+    }
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.(jpe?g|png|bmp|gif|webm)$/.test(pathname)){
+    if(/\.(jpe?g|png|bmp|gif|webm)$/i.test(pathname)){
         next();
     }
     var start = url.parse(req.originalUrl, true).query.start;
@@ -32,11 +36,16 @@ router.get(/\/.*/, function(req, res, next) {
     }
     dirlist.getList(absPath, pathname, start, function(err, list){
         res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
+        res.end();
     });
 
 }, function(req, res, next){
+    if(! req.cookies.nodegallery){
+        req.pathname = '/login';
+        res.redirect('/login');
+    }
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.webm$/.test(pathname)){
+    if(/\.webm$/i.test(pathname)){
         next();
     }
     var start = url.parse(req.originalUrl, true).query.start;
@@ -44,13 +53,21 @@ router.get(/\/.*/, function(req, res, next) {
         start = 0;
     }
     res.render('image', {title: pathname, image: path.join('/imagesx', pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
+    res.end();
 }, function(req, res, next){
+    if(! req.cookies.nodegallery){
+        req.pathname = '/login';
+        res.redirect('/login');
+    }
     var pathname = url.parse(req.originalUrl, true).pathname;
     var start = url.parse(req.originalUrl, true).query.start;
     if(start == undefined){ 
         start = 0;
     }
     res.render('video', {title: pathname, webm: path.join('/imagesx', pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
+}, function(req, res){
+    req.pathname = '/login';
+    res.redirect('/login');
 });
 
 module.exports = router;

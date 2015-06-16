@@ -1,0 +1,20 @@
+extends layout
+block content
+    div.container
+        if alertMessage
+            .alert.alert-danger
+                |#{alertMessage}
+        .row
+            .col-md-offset-5.col-md-3
+                .form-login
+                h4 Welcome back.
+                form(name="login", ation="/login", method="post")
+                    input(type="text", name="user", id="user", placeholder="username").form-control.input-sm.chat-input
+                    <br />
+                    input(type="password", name="password", id="password", placeholder="password").form-control.input-sm.chat-input
+                    <br />
+                    .wrapper
+                        span.group-btn
+                            input(type="submit", value="login").btn.btn-primary.button-md
+    div.footer
+            
