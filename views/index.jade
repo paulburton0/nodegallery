@@ -35,7 +35,7 @@ block content
                         br
                         span #{item.name}
                 else
-                    a(href=item.relativePath + '?start=' + start + '&next=' + item.next + '&prev=' + item.prev).img-thumbnail 
+                    a(href=item.relativePath + '?start=' + start).img-thumbnail 
                         img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
             - if(colnum % 2 == 0)
                 .clearfix.visible-sm-block
