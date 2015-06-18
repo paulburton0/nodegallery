@@ -3,12 +3,11 @@ var path = require('path');
 var gm = require('gm');
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
+var rimraf = require('rimraf');
 
 var exports = module.exports = {};
 
 exports.getList = function(dir, relDir, start, cb){
-
-    var results = [];
 
     fs.readdir(dir, function(err, files){
         if(err){
@@ -17,6 +16,8 @@ exports.getList = function(dir, relDir, start, cb){
 
         var dirContents = [];
         var item = {};
+
+        files.sort();
 
         files.map(function(item, index){
             item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
@@ -42,7 +43,7 @@ exports.getList = function(dir, relDir, start, cb){
                 dirContents.unshift(item);
             }
             
-        })
+        });
 
         dirContentsSlice = dirContents.slice(start, Number(start) + 12);
 
@@ -53,8 +54,11 @@ exports.getList = function(dir, relDir, start, cb){
             end = false;
         }
 
-
         var iterator = dirContentsSlice.length;
+
+        var fileResults = [];
+        var dirResults = [];
+        var results = [];
 
         dirContentsSlice.map(function(item){
             if(item.type == 'file'){
@@ -77,7 +81,12 @@ exports.getList = function(dir, relDir, start, cb){
                                             .on('error', function(err, stdout, stderr){
                                                 iterator--;
                                                 item.thumb = '/images/NoThumb.png';
+                                                fileResults.push(item);
                                                 if(! iterator){
+                                                    if(dirResults){
+                                                        dirResults.sort();
+                                                    }
+                                                    results = results.concat(dirResults, fileResults);
                                                     if(end){
                                                         results.push('end');
                                                     }
@@ -87,8 +96,13 @@ exports.getList = function(dir, relDir, start, cb){
                                             })
                                             .on('end', function(){
                                                 iterator--;
-                                                results.push(item);
+                                                fileResults.push(item);
                                                 if(! iterator){
+                                                    fileResults.sort();
+                                                    if(dirResults){
+                                                        dirResults.sort();
+                                                    }
+                                                    results = results.concat(dirResults, fileResults);
                                                     if(end){
                                                         results.push('end');
                                                     }
@@ -106,8 +120,13 @@ exports.getList = function(dir, relDir, start, cb){
                                             if (err){
                                                 iterator--;
                                                 item.thumb = '/images/NoThumb.png';
-                                                results.push(item);
+                                                fileResults.push(item);
                                                 if(! iterator){
+                                                    fileResults.sort();
+                                                    if(dirResults){
+                                                        dirResults.sort();
+                                                    }
+                                                    results = results.concat(dirResults, fileResults);
                                                     if(end){
                                                         results.push('end');
                                                     }
@@ -123,8 +142,13 @@ exports.getList = function(dir, relDir, start, cb){
                                                     iterator--;
                                                     if (err){
                                                         item.thumb = '/images/NoThumb.png';
-                                                        results.push(item);
+                                                        fileResults.push(item);
                                                         if(! iterator){
+                                                            fileResults.sort();
+                                                            if(dirResults){
+                                                                dirResults.sort();
+                                                            }
+                                                            results = results.concat(dirResults, fileResults);
                                                             if(end){
                                                                 results.push('end');
                                                             }
@@ -132,8 +156,13 @@ exports.getList = function(dir, relDir, start, cb){
                                                         }
                                                         return;
                                                     }
-                                                    results.push(item);
+                                                    fileResults.push(item);
                                                     if(! iterator){
+                                                        fileResults.sort();
+                                                        if(dirResults){
+                                                            dirResults.sort();
+                                                        }
+                                                        results = results.concat(dirResults, fileResults);
                                                         if(end){
                                                             results.push('end');
                                                         }
@@ -148,8 +177,13 @@ exports.getList = function(dir, relDir, start, cb){
                                                     iterator--;
                                                     if (err){
                                                         item.thumb = '/images/NoThumb.png';
-                                                        results.push(item);
+                                                        fileResults.push(item);
                                                         if(! iterator){
+                                                            fileResults.sort();
+                                                            if(dirResults){
+                                                                dirResults.sort();
+                                                            }
+                                                            results = results.concat(dirResults, fileResults);
                                                             if(end){
                                                                 results.push('end');
                                                             }
@@ -157,8 +191,13 @@ exports.getList = function(dir, relDir, start, cb){
                                                         }
                                                         return;
                                                     }
-                                                    results.push(item);
+                                                    fileResults.push(item);
                                                     if(! iterator){
+                                                        fileResults.sort();
+                                                        if(dirResults){
+                                                            dirResults.sort();
+                                                        }
+                                                        results = results.concat(dirResults, fileResults);
                                                         if(end){
                                                             results.push('end');
                                                         }
@@ -175,8 +214,13 @@ exports.getList = function(dir, relDir, start, cb){
                             }
                             else{
                                 iterator--;
-                                results.push(item);
+                                fileResults.push(item);
                                 if(! iterator){
+                                    fileResults.sort();
+                                    if(dirResults){
+                                        dirResults.sort();
+                                    }
+                                    results = results.concat(dirResults, fileResults);
                                     if(end){
                                         results.push('end');
                                     }
@@ -189,8 +233,13 @@ exports.getList = function(dir, relDir, start, cb){
 
             else if(item.type == 'directory'){
                 iterator--;
-                results.unshift(item);
+                dirResults.push(item);
                 if(! iterator){
+                    dirResults.sort();
+                    if(fileResults){
+                        fileResults.sort();
+                    }
+                    results = results.concat(dirResults, fileResults);
                     if(end){
                         results.push('end');
                     }
@@ -199,4 +248,37 @@ exports.getList = function(dir, relDir, start, cb){
             }
         });
     });
+}
+
+exports.cleanup = function(pathname, absPath){
+    
+    var thumbDir = path.join(__dirname, 'public', 'nodegallery_cache', pathname);
+
+    fs.readdir(thumbDir, function(err, files){
+        if(err || ! files){
+            return;
+        }
+        files.map(function(item){
+            var thumbPath = path.join(thumbDir, item);
+            var originalPath = path.join(absPath, item.replace(/\.png$/, ''));
+
+            if(fs.statSync(thumbPath)){
+
+                fs.stat(originalPath, function(err, stats){
+                    if(err && err.code == 'ENOENT'){
+                        fs.stat(thumbPath, function(err, stats){
+                            stats.isFile() ? fs.unlink(thumbPath, function(){return}) : rimraf(thumbPath, function(){return});
+                        });
+                    }
+                    else{
+                        return;
+                    }
+                });
+            }
+            else{
+                return;
+            }
+        });
+    });
+
 }

@@ -36,8 +36,8 @@ router.get(/\/.*/, function(req, res, next){
     }
     dirlist.getList(absPath, pathname, start, function(err, list){
         res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
-        res.end();
     });
+    dirlist.cleanup(pathname, absPath);
 
 }, function(req, res, next){
     if(! req.cookies.nodegallery){
@@ -53,7 +53,6 @@ router.get(/\/.*/, function(req, res, next){
         start = 0;
     }
     res.render('image', {title: pathname, image: path.join('/imagesx', pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
-    res.end();
 }, function(req, res, next){
     if(! req.cookies.nodegallery){
         req.pathname = '/login';
