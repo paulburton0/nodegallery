@@ -8,7 +8,6 @@ var rimraf = require('rimraf');
 var exports = module.exports = {};
 
 exports.getList = function(dir, relDir, start, cb){
-
     fs.readdir(dir, function(err, files){
         if(err){
             return cb(err);

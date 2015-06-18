@@ -19,7 +19,6 @@ function getBreadcrumbs(pathname){
     return breadcrumbArray;
 }
 
-    /* GET home page. */
 router.get(/\/.*/, function(req, res, next){
     if(! req.cookies.nodegallery){
         req.pathname = '/login';
@@ -36,6 +35,7 @@ router.get(/\/.*/, function(req, res, next){
     }
     dirlist.getList(absPath, pathname, start, function(err, list){
         res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
+        dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return});
     });
     dirlist.cleanup(pathname, absPath);
 
