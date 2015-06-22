@@ -36,7 +36,7 @@ exports.getList = function(dir, relDir, start, cb){
             }
             
             fs.stat(item.absolutePath, function(err, stats){
-                if(stats.isFile() || /\.(jpe?g|png|gif|bmp|webm)/i.test(item.name)){ 
+                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm)/i.test(item.name)){ 
                     item.type = 'file';
                     dirContents.push(item);
                     if(index == files.length - 1){
