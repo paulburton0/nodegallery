@@ -2,6 +2,7 @@ var express = require('express');
 var dirlist = require('../list.js');
 var path = require('path');
 var url = require('url');
+var fs = require('fs');
 var router = express.Router();
 
 var imageDir = '/home/pburton/imagesx';
@@ -25,20 +26,36 @@ router.get(/\/.*/, function(req, res, next){
         res.redirect('/login');
     }
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.(jpe?g|png|bmp|gif|webm)$/i.test(pathname)){
-        next();
-    }
-    var start = url.parse(req.originalUrl, true).query.start;
     var absPath = path.join(imageDir, pathname);
-    if(start == undefined){ 
-        start = 0;
-    }
-    dirlist.getList(absPath, pathname, start, function(err, list){
-        res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
-        dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return});
+    fs.stat(absPath, function(err, stats){
+        if(! stats){
+            res.status(404).send('The item you\'re looking for doesn\'t exist');
+            res.end();
+        }
+        else{
+            if(/\.(jpe?g|png|bmp|gif|webm)$/i.test(pathname)){
+                next();
+            }
+            var start = url.parse(req.originalUrl, true).query.start;
+            if(start == undefined){ 
+                start = 0;
+            }
+            dirlist.getList(absPath, pathname, start, function(err, list){
+                if(err){
+                    if(err == '404'){
+                        res.status(404).send('The item you\'re looking for doesn\'t exist');
+                        res.end();
+                    }
+                    else{
+                        console.log(err);
+                    }
+                }
+                res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
+                dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return});
+            });
+            dirlist.cleanup(pathname, absPath);
+        }
     });
-    dirlist.cleanup(pathname, absPath);
-
 }, function(req, res, next){
     if(! req.cookies.nodegallery){
         req.pathname = '/login';
