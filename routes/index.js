@@ -27,7 +27,11 @@ router.get(/\/.*/, function(req, res, next){
     }
     var pathname = url.parse(req.originalUrl, true).pathname;
     var absPath = path.join(imageDir, pathname);
+    absPath = absPath.replace(/%20/g, ' ');
     fs.stat(absPath, function(err, stats){
+        if(err){
+            console.log(err);
+        }
         if(! stats){
             res.status(404).send('The item you\'re looking for doesn\'t exist');
             res.end();
@@ -37,7 +41,7 @@ router.get(/\/.*/, function(req, res, next){
             if(start == undefined){ 
                 start = 0;
             }
-            if(stats.isFile() || /\.(jpe?g|png|bmp|gif|webm)$/i.test(pathname)){
+            if(stats.isFile()){
                 next();
             }
             else if(stats.isDirectory()){
@@ -55,6 +59,10 @@ router.get(/\/.*/, function(req, res, next){
                     dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return});
                 });
                 dirlist.cleanup(pathname, absPath);
+            }
+            else{
+                res.status(404).send('The item you\'re looking for doesn\'t exist');
+                res.end();
             }
         }
     });
