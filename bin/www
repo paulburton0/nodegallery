@@ -4,21 +4,22 @@
  * Module dependencies.
  */
 
+var settings = require('../settings');
 var app = require('../app');
 var debug = require('debug')('nodegallery:server');
-var http = require('https');
 var fs = require('fs');
+var http = settings.useHttps ? require('https') : require('http');
 
 var options = {
-  key: fs.readFileSync('ssl/ssl-cert-snakeoil.key'),
-  cert: fs.readFileSync('ssl/ssl-cert-snakeoil.pem')
+  key: fs.readFileSync(settings.sslKey),
+  cert: fs.readFileSync(settings.sslCert)
 };
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || settings.port);
 app.set('port', port);
 
 /**

@@ -4,8 +4,9 @@ var path = require('path');
 var url = require('url');
 var fs = require('fs');
 var router = express.Router();
+var settings = require('../settings');
 
-var imageDir = '/home/pburton/imagesx';
+var imageDir = settings.imageDirectory;
 
 function getBreadcrumbs(pathname){
     var pathArray = pathname.split('/');
