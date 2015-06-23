@@ -7,12 +7,12 @@ To use nodegallery, follow these simple steps:
 1. Update settings.js for your application:  
 
     ```        
-    module.exports = { port : '3000',  <--- the port number you want nodegallery to listen on  
-                               sslKey : 'ssl/ssl-cert-snakeoil.key',   <--- the path to your SSL key file  
-                               sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
-                               useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
-                               imageDirectory : '/home/pburton/imagesx' <--- The path to your root images directory  
-                      }
+        module.exports = { port : '3000',  <--- the port number you want nodegallery to listen on  
+                                   sslKey : 'ssl/ssl-cert-snakeoil.key',   <--- the path to your SSL key file  
+                                   sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
+                                   useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
+                                   imageDirectory : '/home/pburton/imagesx' <--- The path to your root images directory  
+                          }
     ```
 
 2. Add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
@@ -39,7 +39,7 @@ Nodegallery will show images in the following formats:
 * GIF  
 * BMP  
 
-Nodegallery will also only include WEBM videos. Your videos mmust be converted to WEBM in order to view them in nodegallery.  
+Nodegallery will also only include WEBM videos. Your videos must be converted/transcoded to WEBM in order to view them in nodegallery.  
 
 Files and directories that start with a '.' (period) will not appear in nodegallery.  
 
