@@ -6,3 +6,9 @@ body {
 a {
   color: #00B7FF;
 }
+
+.padding-0 {
+    padding: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+}

@@ -8,6 +8,7 @@ var settings = require('../settings');
 
 var imageDir = settings.imageDirectory;
 
+// getBreadcrumbs composes the current path in a way that can be processed by the view.
 function getBreadcrumbs(pathname){
     var pathArray = pathname.split('/');
     var breadcrumbArray = [];
@@ -21,6 +22,7 @@ function getBreadcrumbs(pathname){
     return breadcrumbArray;
 }
 
+// Regex here catches all requests
 router.get(/\/.*/, function(req, res, next){
     if(! req.cookies.nodegallery){
         req.pathname = '/login';
@@ -29,7 +31,7 @@ router.get(/\/.*/, function(req, res, next){
     var pathname = url.parse(req.originalUrl, true).pathname;
     var absPath = path.join(imageDir, pathname);
     absPath = absPath.replace(/%20/g, ' ');
-    fs.stat(absPath, function(err, stats){
+    fs.stat(absPath, function(err, stats){ // If the requested file/directory doesn't exists, return a 404.
         if(err){
             console.log(err);
         }
@@ -42,11 +44,11 @@ router.get(/\/.*/, function(req, res, next){
             if(start == undefined){ 
                 start = 0;
             }
-            if(stats.isFile()){
+            if(stats.isFile()){ // If the requested resource is a file, skip to the next route handler.
                 next();
             }
             else if(stats.isDirectory()){
-                dirlist.getList(absPath, pathname, start, function(err, list){
+                dirlist.getList(absPath, pathname, start, function(err, list){ // Call the getList function is list.js
                     if(err){
                         if(err == '404'){
                             res.status(404).send('The item you\'re looking for doesn\'t exist');
@@ -57,9 +59,9 @@ router.get(/\/.*/, function(req, res, next){
                         }
                     }
                     res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
-                    dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return});
+                    dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return}); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
                 });
-                dirlist.cleanup(pathname, absPath);
+                dirlist.cleanup(pathname, absPath); // Clean up the directory in case contents have been moved/deleted.
             }
             else{
                 res.status(404).send('The item you\'re looking for doesn\'t exist');
@@ -73,14 +75,16 @@ router.get(/\/.*/, function(req, res, next){
         res.redirect('/login');
     }
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.webm$/i.test(pathname)){
+    if(/\.webm$/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
         next();
-    }
+    } 
     var start = url.parse(req.originalUrl, true).query.start;
     if(start == undefined){ 
         start = 0;
     }
-    res.render('image', {title: pathname, image: path.join('/imagesx', pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
+    var relativeImageDir = settings.imageDirectory.split('/');
+    var relativeImageDir = '/' + relativeImageDir.slice(-1);
+    res.render('image', {title: pathname, image: path.join(relativeImageDir, pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
 }, function(req, res, next){
     if(! req.cookies.nodegallery){
         req.pathname = '/login';
@@ -91,7 +95,9 @@ router.get(/\/.*/, function(req, res, next){
     if(start == undefined){ 
         start = 0;
     }
-    res.render('video', {title: pathname, webm: path.join('/imagesx', pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
+    var relativeImageDir = settings.imageDirectory.split('/');
+    var relativeImageDir = '/' + relativeImageDir.slice(-1);
+    res.render('video', {title: pathname, webm: path.join(relativeImageDir, pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
 }, function(req, res){
     req.pathname = '/login';
     res.redirect('/login');
