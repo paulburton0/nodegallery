@@ -1,6 +1,6 @@
 var fs = require('fs');
 var path = require('path');
-var gm = require('gm');
+var im = require('gm').subClass({imageMagick: true});
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
@@ -158,8 +158,8 @@ function composeResults(start, relDir, dirContents, cb){
                                         .size('200x?') // Resize the frame to 200px wide, with proportional height.
                                         .save(item.thumbAbsolutePath);
                                 }
-                                else{ // If the item is not a video, it's an image, so use gm to create the thumbnail
-                                    gm(item.absolutePath)
+                                else{ // If the item is not a video, it's an image, so use im to create the thumbnail
+                                    im(item.absolutePath)
                                     .size(function (err, features) {
                                         if (err){
                                             iterator--;
@@ -181,7 +181,7 @@ function composeResults(start, relDir, dirContents, cb){
                                         }
                                         
                                         if(features.width > features.height){ // If the image is in landscape, make the thumbnail 200px wide.
-                                            gm(item.absolutePath + '[0]') // '[0]' is used for gifs; it grabs the first frame.
+                                            im(item.absolutePath + '[0]') // '[0]' is used for gifs; it grabs the first frame.
                                             .resize(200, null) 
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
@@ -218,7 +218,7 @@ function composeResults(start, relDir, dirContents, cb){
                                             });
                                         }
                                         else{ // If the image is in portrait, make the thumbnail 200px high.
-                                            gm(item.absolutePath + '[0]') 
+                                            im(item.absolutePath + '[0]') 
                                             .resize(null, 200)
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
