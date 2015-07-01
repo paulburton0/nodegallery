@@ -8,7 +8,7 @@ router.get('/login', function(req, res){
 
 router.post('/login' , function(req, res) {
     if(req.body.user == auth.username && req.body.password == auth.password){
-        res.cookie('nodegallery', 'loggedIn', { maxAge: 604800000, httpOnly: false }); 
+        res.cookie('nodegallery', req.body.user, { maxAge: 604800000, httpOnly: false }); 
         res.redirect('/');
     }
     else{

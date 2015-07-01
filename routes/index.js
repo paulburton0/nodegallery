@@ -5,6 +5,7 @@ var url = require('url');
 var fs = require('fs');
 var router = express.Router();
 var settings = require('../settings');
+var auth = require('../auth');
 
 var imageDir = settings.imageDirectory;
 
@@ -24,7 +25,7 @@ function getBreadcrumbs(pathname){
 
 // Regex here catches all requests
 router.get(/\/.*/, function(req, res, next){
-    if(! req.cookies.nodegallery){
+    if(req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -70,7 +71,7 @@ router.get(/\/.*/, function(req, res, next){
         }
     });
 }, function(req, res, next){
-    if(! req.cookies.nodegallery){
+    if(req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -86,7 +87,7 @@ router.get(/\/.*/, function(req, res, next){
     var relativeImageDir = '/' + relativeImageDir.slice(-1);
     res.render('image', {title: pathname, image: path.join(relativeImageDir, pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
 }, function(req, res, next){
-    if(! req.cookies.nodegallery){
+    if(req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
