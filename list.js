@@ -125,6 +125,7 @@ function composeResults(start, relDir, dirContents, cb){
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item); // Push the item to the final results array.
                                             if(! iterator){ // If there aren't any more images to process, finish up and return the callback.
+                                                fileResults.sort();
                                                 if(dirResults){
                                                     dirResults.sort();
                                                 }
