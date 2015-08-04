@@ -1,9 +1,13 @@
 extends layout
 block content
-    .breadcrumb
+    - var lastCrumb = breadcrumbs.pop()
+    ul.breadcrumb
         each crumb in breadcrumbs
             li
                 a(href=crumb.path) #{crumb.name}
+        li 
+            span= lastCrumb.name
+
     div.container-fluid
         - var path
         - var pathslice = pathname.split('/').slice(0,-1);

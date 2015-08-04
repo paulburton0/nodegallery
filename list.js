@@ -11,7 +11,7 @@ var exports = module.exports = {};
 // dir - absolute path to the directory containing images
 // reDir - relative path, used to cache thumbnails
 // start - from the URL attribute 'start'
-exports.getList = function(dir, relDir, start, cb){
+exports.getList = function(dir, relDir, start, prefetch, cb){
     fs.readdir(dir, function(err, files){
         if(err){
             return cb(err);
@@ -22,11 +22,16 @@ exports.getList = function(dir, relDir, start, cb){
             err = '404';
             return cb(err);    
         }
+        
+        if(files.length == 0){
+            err = '999';
+            return cb(err);
+        }
 
+        var dirDirs = [];
+        var dirFiles = [];
         var dirContents = [];
         var item = {};
-
-        files.sort();
 
         files.map(function(item, index){
             // Each item in the directory becomes an object.
@@ -36,7 +41,14 @@ exports.getList = function(dir, relDir, start, cb){
             if(item.name == undefined || /^\./.test(item.name) || /\.html$/i.test(item.name)){
                 //If we're at the end of the array of direfctory contents, call composeResults.
                 if(index == files.length - 1){
-                    composeResults(start, relDir, dirContents, cb);
+                    dirDirs.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                    dirFiles.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                    dirContents = dirDirs.concat(dirFiles);
+                    composeResults(start, relDir, dirContents, prefetch, cb);
                 }
                 else{
                     return;
@@ -46,32 +58,44 @@ exports.getList = function(dir, relDir, start, cb){
             // Stat the item
             fs.stat(item.absolutePath, function(err, stats){
                 // If the item is an image file
-                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm)/i.test(item.name)){ 
+                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm)$/i.test(item.name)){ 
                     item.type = 'file';
-                    dirContents.push(item); // This is the intermediate list of 'item' objects. Files get pushed to the end of the array.
+                    dirFiles.push(item); // This is the intermediate list of 'item' objects. Files get pushed to the end of the array.
                     if(index == files.length - 1){
-                        composeResults(start, relDir, dirContents, cb);
-                    }
-                    else{
-                        return;
+                        dirDirs.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirFiles.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirContents = dirDirs.concat(dirFiles);
+                        composeResults(start, relDir, dirContents, prefetch, cb);
                     }
                 }
                 else if(stats.isDirectory()){
                     item.type = 'directory';
-                    dirContents.unshift(item); // Directories get unshifted to the beginning of the array.
+                    dirDirs.push(item); // Directories get unshifted to the beginning of the array.
                     if(index == files.length - 1){
-                        composeResults(start, relDir,  dirContents, cb);
-                    }
-                    else{
-                        return;
+                        dirDirs.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirFiles.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirContents = dirDirs.concat(dirFiles);
+                        composeResults(start, relDir, dirContents, prefetch, cb);
                     }
                 }
                 else{
                     if(index == files.length - 1){
-                        composeResults(start, relDir, dirContents, cb);
-                    }
-                    else{
-                        return;
+                        dirDirs.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirFiles.sort(function(a, b){
+                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                    });
+                        dirContents = dirDirs.concat(dirFiles);
+                        composeResults(start, relDir, dirContents, prefetch, cb);
                     }
                 }
             });
@@ -83,16 +107,21 @@ exports.getList = function(dir, relDir, start, cb){
 // start - from the URL attribute 'start'
 // reDir - relative path, used to cache thumbnails
 // dirContents - the array of objects created in the getList function
-function composeResults(start, relDir, dirContents, cb){
+function composeResults(start, relDir, dirContents, prefetch, cb){
     // Slice the contents down to only 12 results.
     dirContentsSlice = dirContents.slice(start, Number(start) + 12);
 
-    if(! dirContents[Number(start) + 13]){
-        end = true; // If there aren't any more items beyond the current 12, we're at the end of the array.
-    }
-    else{
-        end = false;
-    }
+    //if(prefetch == false){
+        //if(! dirContents[Number(start) + 13]){
+            //console.error('There are no more results: %s', util.inspect(dirContents[Number(start) + 13]));
+            //end = true; // If there aren't any more items beyond the current 12, we're at the end of the array.
+        //}
+        //else{
+            //console.error('There are more results: %s', util.inspect(dirContents[Number(start) + 13]));
+            //end = false;
+        //}
+    //}
+    //end = false;
 
     var iterator = dirContentsSlice.length; // This is decremented each time an item is added to the final results array, used to coordinate the 12 async processes.
 
@@ -130,9 +159,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                     dirResults.sort();
                                                 }
                                                 results = results.concat(dirResults, fileResults);
-                                                if(end){
-                                                    results.push('end'); // The Jade view uses this to deactivate the "Next" button if there aren't any more images in the directory.
-                                                }
+                                                //if(end){
+                                                    //results.push('end'); // The Jade view uses this to deactivate the "Next" button if there aren't any more images in the directory.
+                                                //}
                                                 return cb(null, results);
                                             }
                                             return;
@@ -147,9 +176,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                     dirResults.sort();
                                                 }
                                                 results = results.concat(dirResults, fileResults);
-                                                if(end){
-                                                    results.push('end');
-                                                }
+                                                //if(end){
+                                                    //results.push('end');
+                                                //}
                                                 return cb(null, results);
                                             }
                                         })
@@ -172,9 +201,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                     dirResults.sort();
                                                 }
                                                 results = results.concat(dirResults, fileResults);
-                                                if(end){
-                                                    results.push('end');
-                                                }
+                                                //if(end){
+                                                    //results.push('end');
+                                                //}
                                                 return cb(null, results);
                                             }
                                             return;
@@ -195,9 +224,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                             dirResults.sort();
                                                         }
                                                         results = results.concat(dirResults, fileResults);
-                                                        if(end){
-                                                            results.push('end');
-                                                        }
+                                                        //if(end){
+                                                            //results.push('end');
+                                                        //}
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -210,9 +239,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                         dirResults.sort();
                                                     }
                                                     results = results.concat(dirResults, fileResults);
-                                                    if(end){
-                                                        results.push('end');
-                                                    }
+                                                    //if(end){
+                                                        //results.push('end');
+                                                    //}
                                                     return cb(null, results);
                                                 }
                                             });
@@ -232,9 +261,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                             dirResults.sort();
                                                         }
                                                         results = results.concat(dirResults, fileResults);
-                                                        if(end){
-                                                            results.push('end');
-                                                        }
+                                                        //if(end){
+                                                            //results.push('end');
+                                                        //}
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -247,9 +276,9 @@ function composeResults(start, relDir, dirContents, cb){
                                                         dirResults.sort();
                                                     }
                                                     results = results.concat(dirResults, fileResults);
-                                                    if(end){
-                                                        results.push('end');
-                                                    }
+                                                    //if(end){
+                                                        //results.push('end');
+                                                    //}
                                                     return cb(null, results);
                                                 }
                                             });
@@ -271,9 +300,9 @@ function composeResults(start, relDir, dirContents, cb){
                                     dirResults.sort();
                                 }
                                 results = results.concat(dirResults, fileResults);
-                                if(end){
-                                    results.push('end');
-                                }
+                                //if(end){
+                                    //results.push('end');
+                                //}
                                 return cb(null, results);
                             }
                         }
@@ -291,9 +320,9 @@ function composeResults(start, relDir, dirContents, cb){
                     fileResults.sort();
                 }
                 results = results.concat(dirResults, fileResults);
-                if(end){
-                    results.push('end');
-                }
+                //if(end){
+                    //results.push('end');
+                //}
                 return cb(null, results);
             }
         }

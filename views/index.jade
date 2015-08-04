@@ -3,10 +3,14 @@ block content
     if content[content.length - 1] == 'end'
         - var end = true;
         - content.pop();
+    - var lastCrumb = breadcrumbs.pop()
     ul.breadcrumb
         each crumb in breadcrumbs
             li
                 a(href=crumb.path) #{crumb.name}
+        li 
+            span= lastCrumb.name
+
     a(href="/logout") Logout
     .clearfix
     div.container
