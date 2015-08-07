@@ -32,7 +32,7 @@ router.get(/\/.*/, function(req, res, next){
     var pathname = url.parse(req.originalUrl, true).pathname;
     var absPath = path.join(imageDir, pathname);
     absPath = absPath.replace(/%20/g, ' ');
-    fs.stat(absPath, function(err, stats){ // If the requested file/directory doesn't exists, return a 404.
+    fs.stat(absPath, function(err, stats){ // If the requested file/directory doesn't exist, return a 404.
         if(err){
             console.log(err);
         }
@@ -49,7 +49,7 @@ router.get(/\/.*/, function(req, res, next){
                 next();
             }
             else if(stats.isDirectory()){
-                dirlist.getList(absPath, pathname, start, function(err, list){ // Call the getList function is list.js
+                dirlist.getList(absPath, pathname, start, function(err, list){ // Call the getList function in list.js
                     if(err){
                         if(err == '404'){
                             res.status(404).send('The item you\'re looking for doesn\'t exist');
