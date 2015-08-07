@@ -39,8 +39,8 @@ Nodegallery will show images in the following formats:
 * GIF  
 * BMP  
 
-Nodegallery will also only include WEBM videos. Your videos must be converted/transcoded to WEBM in order to view them in nodegallery.  
+Nodegallery will also only include HTML 5-compatible WEBM and MP4 videos. Your videos must be converted/transcoded to one of these formats in order to view them in nodegallery.  
 
 Files and directories that start with a '.' (period) will not appear in nodegallery.  
 
-It's probably a good idea to avoid image and video files with spaces and nonstandard URL characters in them.  
+It's probably a good idea to avoid directory, image, and video names with spaces and nonstandard URL characters in them.
