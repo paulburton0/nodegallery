@@ -49,7 +49,7 @@ router.get(/\/.*/, function(req, res, next){
                 next();
             }
             else if(stats.isDirectory()){
-                dirlist.getList(absPath, pathname, start, false, function(err, list){ // Call the getList function is list.js
+                dirlist.getList(absPath, pathname, start, function(err, list){ // Call the getList function is list.js
                     if(err){
                         if(err == '404'){
                             res.status(404).send('The item you\'re looking for doesn\'t exist');
@@ -64,7 +64,7 @@ router.get(/\/.*/, function(req, res, next){
                         }
                     }
                     res.render('index', {title: pathname, content: list, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
-                    dirlist.getList(absPath, pathname, Number(start) + 12, true, function(err, list){return}); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
+                    dirlist.getList(absPath, pathname, Number(start) + 12, function(err, list){return}); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
                 });
                 dirlist.cleanup(pathname, absPath); // Clean up the directory in case contents have been moved/deleted.
             }

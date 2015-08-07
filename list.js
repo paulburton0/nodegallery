@@ -11,7 +11,7 @@ var exports = module.exports = {};
 // dir - absolute path to the directory containing images
 // reDir - relative path, used to cache thumbnails
 // start - from the URL attribute 'start'
-exports.getList = function(dir, relDir, start, prefetch, cb){
+exports.getList = function(dir, relDir, start, cb){
     fs.readdir(dir, function(err, files){
         if(err){
             return cb(err);
@@ -48,7 +48,7 @@ exports.getList = function(dir, relDir, start, prefetch, cb){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                     });
                     dirContents = dirDirs.concat(dirFiles);
-                    composeResults(start, relDir, dirContents, prefetch, cb);
+                    composeResults(start, relDir, dirContents, cb);
                 }
                 else{
                     return;
@@ -63,13 +63,13 @@ exports.getList = function(dir, relDir, start, prefetch, cb){
                     dirFiles.push(item); // This is the intermediate list of 'item' objects. Files get pushed to the end of the array.
                     if(index == files.length - 1){
                         dirDirs.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirFiles.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, prefetch, cb);
+                        composeResults(start, relDir, dirContents, cb);
                     }
                 }
                 else if(stats.isDirectory()){
@@ -77,25 +77,25 @@ exports.getList = function(dir, relDir, start, prefetch, cb){
                     dirDirs.push(item); // Directories get unshifted to the beginning of the array.
                     if(index == files.length - 1){
                         dirDirs.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirFiles.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, prefetch, cb);
+                        composeResults(start, relDir, dirContents, cb);
                     }
                 }
                 else{
                     if(index == files.length - 1){
                         dirDirs.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirFiles.sort(function(a, b){
-                        return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                    });
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                        });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, prefetch, cb);
+                        composeResults(start, relDir, dirContents, cb);
                     }
                 }
             });
@@ -107,21 +107,12 @@ exports.getList = function(dir, relDir, start, prefetch, cb){
 // start - from the URL attribute 'start'
 // reDir - relative path, used to cache thumbnails
 // dirContents - the array of objects created in the getList function
-function composeResults(start, relDir, dirContents, prefetch, cb){
+function composeResults(start, relDir, dirContents, cb){
+    dirContents.map(function(item, index){
+        item.number = index;    
+    });
     // Slice the contents down to only 12 results.
     dirContentsSlice = dirContents.slice(start, Number(start) + 12);
-
-    //if(prefetch == false){
-        //if(! dirContents[Number(start) + 13]){
-            //console.error('There are no more results: %s', util.inspect(dirContents[Number(start) + 13]));
-            //end = true; // If there aren't any more items beyond the current 12, we're at the end of the array.
-        //}
-        //else{
-            //console.error('There are more results: %s', util.inspect(dirContents[Number(start) + 13]));
-            //end = false;
-        //}
-    //}
-    //end = false;
 
     var iterator = dirContentsSlice.length; // This is decremented each time an item is added to the final results array, used to coordinate the 12 async processes.
 
@@ -154,14 +145,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item); // Push the item to the final results array.
                                             if(! iterator){ // If there aren't any more images to process, finish up and return the callback.
-                                                fileResults.sort();
-                                                if(dirResults){
-                                                    dirResults.sort();
-                                                }
                                                 results = results.concat(dirResults, fileResults);
-                                                //if(end){
-                                                    //results.push('end'); // The Jade view uses this to deactivate the "Next" button if there aren't any more images in the directory.
-                                                //}
+                                                results.sort(function(a, b){
+                                                    return a.number - b.number;
+                                                });
                                                 return cb(null, results);
                                             }
                                             return;
@@ -171,14 +158,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                             fileResults.push(item);
                                             item = null;
                                             if(! iterator){
-                                                fileResults.sort();
-                                                if(dirResults){
-                                                    dirResults.sort();
-                                                }
                                                 results = results.concat(dirResults, fileResults);
-                                                //if(end){
-                                                    //results.push('end');
-                                                //}
+                                                results.sort(function(a, b){
+                                                    return a.number - b.number;
+                                                });
                                                 return cb(null, results);
                                             }
                                         })
@@ -196,14 +179,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                             fileResults.push(item);
                                             item = null;
                                             if(! iterator){
-                                                fileResults.sort();
-                                                if(dirResults){
-                                                    dirResults.sort();
-                                                }
                                                 results = results.concat(dirResults, fileResults);
-                                                //if(end){
-                                                    //results.push('end');
-                                                //}
+                                                results.sort(function(a, b){
+                                                    return a.number - b.number;
+                                                });
                                                 return cb(null, results);
                                             }
                                             return;
@@ -219,14 +198,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                                     fileResults.push(item);
                                                     item = null;
                                                     if(! iterator){
-                                                        fileResults.sort();
-                                                        if(dirResults){
-                                                            dirResults.sort();
-                                                        }
                                                         results = results.concat(dirResults, fileResults);
-                                                        //if(end){
-                                                            //results.push('end');
-                                                        //}
+                                                        results.sort(function(a, b){
+                                                            return a.number - b.number;
+                                                        });
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -234,14 +209,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                                 fileResults.push(item);
                                                 item = null;
                                                 if(! iterator){
-                                                    fileResults.sort();
-                                                    if(dirResults){
-                                                        dirResults.sort();
-                                                    }
                                                     results = results.concat(dirResults, fileResults);
-                                                    //if(end){
-                                                        //results.push('end');
-                                                    //}
+                                                    results.sort(function(a, b){
+                                                        return a.number - b.number;
+                                                    });
                                                     return cb(null, results);
                                                 }
                                             });
@@ -256,14 +227,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                                     fileResults.push(item);
                                                     item = null;
                                                     if(! iterator){
-                                                        fileResults.sort();
-                                                        if(dirResults){
-                                                            dirResults.sort();
-                                                        }
                                                         results = results.concat(dirResults, fileResults);
-                                                        //if(end){
-                                                            //results.push('end');
-                                                        //}
+                                                        results.sort(function(a, b){
+                                                            return a.number - b.number;
+                                                        });
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -271,14 +238,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                                                 fileResults.push(item);
                                                 item = null;
                                                 if(! iterator){
-                                                    fileResults.sort();
-                                                    if(dirResults){
-                                                        dirResults.sort();
-                                                    }
                                                     results = results.concat(dirResults, fileResults);
-                                                    //if(end){
-                                                        //results.push('end');
-                                                    //}
+                                                    results.sort(function(a, b){
+                                                        return a.number - b.number;
+                                                    });
                                                     return cb(null, results);
                                                 }
                                             });
@@ -295,14 +258,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                             fileResults.push(item);
                             item = null;
                             if(! iterator){
-                                fileResults.sort();
-                                if(dirResults){
-                                    dirResults.sort();
-                                }
                                 results = results.concat(dirResults, fileResults);
-                                //if(end){
-                                    //results.push('end');
-                                //}
+                                results.sort(function(a, b){
+                                    return a.number - b.number;
+                                });
                                 return cb(null, results);
                             }
                         }
@@ -315,14 +274,10 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
             dirResults.push(item);
             item = null;
             if(! iterator){
-                dirResults.sort();
-                if(fileResults){
-                    fileResults.sort();
-                }
                 results = results.concat(dirResults, fileResults);
-                //if(end){
-                    //results.push('end');
-                //}
+                results.sort(function(a, b){
+                    return a.number - b.number;
+                });
                 return cb(null, results);
             }
         }
