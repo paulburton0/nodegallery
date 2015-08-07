@@ -25,7 +25,7 @@ function getBreadcrumbs(pathname){
 
 // Regex here catches all requests
 router.get(/\/.*/, function(req, res, next){
-    if(req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -75,7 +75,7 @@ router.get(/\/.*/, function(req, res, next){
         }
     });
 }, function(req, res, next){
-    if(req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -91,7 +91,7 @@ router.get(/\/.*/, function(req, res, next){
     var relativeImageDir = '/' + relativeImageDir.slice(-1);
     res.render('image', {title: pathname, image: path.join(relativeImageDir, pathname), pathname: pathname, start: start, breadcrumbs: getBreadcrumbs(pathname)});
 }, function(req, res, next){
-    if(req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies.nodegallery != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
