@@ -58,7 +58,7 @@ exports.getList = function(dir, relDir, start, prefetch, cb){
             // Stat the item
             fs.stat(item.absolutePath, function(err, stats){
                 // If the item is an image file
-                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm)$/i.test(item.name)){ 
+                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item.name)){ 
                     item.type = 'file';
                     dirFiles.push(item); // This is the intermediate list of 'item' objects. Files get pushed to the end of the array.
                     if(index == files.length - 1){
@@ -146,7 +146,7 @@ function composeResults(start, relDir, dirContents, prefetch, cb){
                         if(err){
                             if(err.code == 'ENOENT'){ // Only continue with thumbnail generation if the thumbnail doesn't already exist.
                                 // If the file is a webm video
-                                if(/\.webm$/.test(item.absolutePath)){
+                                if(/\.(webm|mp4)$/.test(item.absolutePath)){
                                     ffmpeg(item.absolutePath)
                                         // If there's an error generating the thumbnail, use a generic image.
                                         .on('error', function(err, stdout, stderr){

@@ -80,7 +80,7 @@ router.get(/\/.*/, function(req, res, next){
         res.redirect('/login');
     }
     var pathname = url.parse(req.originalUrl, true).pathname;
-    if(/\.webm$/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
+    if(/\.(webm|mp4)$/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
         next();
     } 
     var start = url.parse(req.originalUrl, true).query.start;

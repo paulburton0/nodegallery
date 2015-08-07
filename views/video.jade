@@ -26,7 +26,12 @@ block content
                 a(href='next') Next
     .embed-responsive.embed-responsive-4by3
         video(controls=true preload=true).embed-responsive-item
-            source(src=webm type='video/webm')
+            - if(/\.webm$/i.test(webm)){
+                source(src=webm type='video/webm')
+            - }
+            - else if(/\.mp4$/i.test(webm)){
+                source(src=webm type='video/mp4')
+            - }
     div.container-fluid
         ul.pager
             //-li.previous
