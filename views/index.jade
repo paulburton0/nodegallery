@@ -3,15 +3,17 @@ block content
     if content[content.length - 1] == 'end'
         - var end = true;
         - content.pop();
-    - var lastCrumb = breadcrumbs.pop()
+    - var lastCrumb = breadcrumbs.pop();
+    - var crumbNum = 0
     ul.breadcrumb
         each crumb in breadcrumbs
+            - crumbNum++;
             li
-                a(href=crumb.path) #{crumb.name}
+                a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
         li 
             span= lastCrumb.name
 
-    a(href="/logout") Logout
+    a(tabindex="-1" href="/logout") Logout
     .clearfix
     div.container
         ul.pager
@@ -19,28 +21,29 @@ block content
             - var next = Number(start) + 12;
             if prev < 0
                 li.previous.disabled 
-                    a(href='#') Previous
+                    a(tabindex="-1" href='#') Previous
             else
                 li.previous
-                    a(href=pathname + '?start=' + prev) Previous
+                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev) Previous
             
             - if(content.length < 12 || end === true)
                 li.next.disabled
-                    a(href='#') Next
+                    a(tabindex="-1" href='#') Next
             - else
                 li.next
-                    a(href=pathname + '?start=' + next) Next
+                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next) Next
         //-div.content
         - var colnum = 1;
+        - var tabIndex = 1;
         each item in content 
             .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
                 if item.type == "directory"
-                    a(href="#{item.relativePath}").img-thumbnail
+                    a(tabindex=tabIndex href="#{item.relativePath}").img-thumbnail
                         span(style='font-size: 10em').glyphicon.glyphicon-folder-open
                         br
                         span #{item.name}
                 else
-                    a(href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                    a(tabindex=tabindex href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
                         img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight, title=item.name)
             - if(colnum % 2 == 0)
                 .clearfix.visible-sm-block
@@ -48,20 +51,21 @@ block content
                 .clearfix.visible-md-block
             - if(colnum % 4 == 0)
                 .clearfix.visible-lg-block
-            - colnum++
+            - colnum++;
+            - tabIndex++;
 
         .clearfix
         ul.pager
             if prev < 0
                 li.previous.disabled 
-                    a(href='#') Previous
+                    a(tabindex="-1" href='#') Previous
             else
                 li.previous
-                    a(href=pathname + '?start=' + prev) Previous
+                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev) Previous
             - if(content.length < 12 || end === true)
                 li.next.disabled
-                    a(href='#') Next
+                    a(tabindex="-1" href='#') Next
             - else
                 li.next
-                    a(href=pathname + '?start=' + next) Next
+                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next) Next
   div.footer

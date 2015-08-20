@@ -3,13 +3,17 @@ block content
     - number = Number(number);
     - var lastCrumb = breadcrumbs.pop();
     - start = number - (number % 12);
-    .breadcrumb
+    - var crumbNum = 0
+    ul.breadcrumb
         each crumb in breadcrumbs
+            - crumbNum++;
             li
-                a(href=crumb.path) #{crumb.name}
+                a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
         li 
             span= lastCrumb.name
 
+    a(tabindex="-1" href="/logout") Logout
+    
     div.container-fluid
         - var path
         - var pathslice = pathname.split('/').slice(0,-1);
@@ -23,14 +27,14 @@ block content
             li.previous
                 - if(number > 0){
                     - var prevNumber = number - 1;
-                    a(href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
                 - }
             li 
-                a(href=path + '?start=' + start) Up
+                a(title="Access Key: k" accesskey="k" ref=path + '?start=' + start) Up
             li.next
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
-                    a(href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
                 - }
 
     center
@@ -40,13 +44,13 @@ block content
             li.previous
                 - if(number > 0){
                     - var prevNumber = number - 1;
-                    a(href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
                 - }
             li 
-                a(href=path + '?start=' + start) Up
+                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start) Up
             li.next
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
-                    a(href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
                 - }
     div.footer
