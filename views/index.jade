@@ -40,8 +40,8 @@ block content
                         br
                         span #{item.name}
                 else
-                    a(href=item.relativePath + '?start=' + start).img-thumbnail 
-                        img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
+                    a(href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                        img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight, title=item.name)
             - if(colnum % 2 == 0)
                 .clearfix.visible-sm-block
             - if(colnum % 3 == 0)

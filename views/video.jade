@@ -1,6 +1,8 @@
 extends layout
 block content
-    - var lastCrumb = breadcrumbs.pop()
+    - number = Number(number);
+    - var lastCrumb = breadcrumbs.pop();
+    - start = number - (number % 12);
     ul.breadcrumb
         each crumb in breadcrumbs
             li
@@ -18,12 +20,19 @@ block content
             - path = pathslice.join('/'); 
         - }
         ul.pager
-            //-li.previous
-                a(href='previous') Previous
+            li.previous
+                - if(number > 0){
+                    - var prevNumber = number - 1;
+                    a(href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                - }
             li 
                 a(href=path + '?start=' + start) Up
-            //-li.next
-                a(href='next') Next
+            li.next
+                - var nextNumber = number + 1;
+                - if(nextNumber < list.length){
+                    a(href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                - }
+
     .embed-responsive.embed-responsive-4by3
         video(controls=true preload=true).embed-responsive-item
             - if(/\.webm$/i.test(webm)){
@@ -34,10 +43,16 @@ block content
             - }
     div.container-fluid
         ul.pager
-            //-li.previous
-                a(href='previous') Previous
+            li.previous
+                - if(number > 0){
+                    - var prevNumber = number - 1;
+                    a(href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                - }
             li 
                 a(href=path + '?start=' + start) Up
-            //-li.next
-                a(href='next') Next
+            li.next
+                - var nextNumber = number + 1;
+                - if(nextNumber < list.length){
+                    a(href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                - }
     div.footer

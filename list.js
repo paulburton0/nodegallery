@@ -11,7 +11,7 @@ var exports = module.exports = {};
 // dir - absolute path to the directory containing images
 // reDir - relative path, used to cache thumbnails
 // start - from the URL attribute 'start'
-exports.getList = function(dir, relDir, start, cb){
+exports.getList = function(start, dir, relDir, cb){
     fs.readdir(dir, function(err, files){
         if(err){
             return cb(err);
@@ -48,7 +48,11 @@ exports.getList = function(dir, relDir, start, cb){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                     });
                     dirContents = dirDirs.concat(dirFiles);
-                    composeResults(start, relDir, dirContents, cb);
+                        dirContents.map(function(item, index){
+                            item.number = index;    
+                        });
+
+                    return cb(null, dirContents);
                 }
                 else{
                     return;
@@ -69,7 +73,11 @@ exports.getList = function(dir, relDir, start, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, cb);
+                        dirContents.map(function(item, index){
+                            item.number = index;    
+                        });
+
+                        return cb(null, dirContents);
                     }
                 }
                 else if(stats.isDirectory()){
@@ -83,7 +91,11 @@ exports.getList = function(dir, relDir, start, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, cb);
+                        dirContents.map(function(item, index){
+                            item.number = index;    
+                        });
+
+                        return cb(null, dirContents);
                     }
                 }
                 else{
@@ -95,7 +107,11 @@ exports.getList = function(dir, relDir, start, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
-                        composeResults(start, relDir, dirContents, cb);
+                        dirContents.map(function(item, index){
+                            item.number = index;    
+                        });
+
+                        return cb(null, dirContents);
                     }
                 }
             });
@@ -107,10 +123,7 @@ exports.getList = function(dir, relDir, start, cb){
 // start - from the URL attribute 'start'
 // reDir - relative path, used to cache thumbnails
 // dirContents - the array of objects created in the getList function
-function composeResults(start, relDir, dirContents, cb){
-    dirContents.map(function(item, index){
-        item.number = index;    
-    });
+exports.composeResults= function(start, relDir, dirContents, cb){
     // Slice the contents down to only 12 results.
     dirContentsSlice = dirContents.slice(start, Number(start) + 12);
 
