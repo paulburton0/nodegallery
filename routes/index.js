@@ -37,8 +37,9 @@ router.get(/\/.*/, function(req, res, next){
             console.error(err);
         }
         if(! stats){
-            res.status(404).send('The item you\'re looking for doesn\'t exist');
+            res.render('404');
             res.end();
+            return;
         }
         else{
             var start = url.parse(req.originalUrl, true).query.start;
@@ -52,12 +53,15 @@ router.get(/\/.*/, function(req, res, next){
                 dirlist.getList(start, absPath, pathname, function(err, list){ // Call the getList function in list.js
                     if(err){
                         if(err == '404'){
-                            res.status(404).send('The item you\'re looking for doesn\'t exist');
+                            res.render('404');
                             res.end();
+                            return;
                         }
                         else if(err == '999'){
-                            res.send('There\'s nothing here.')
+                            console.error('HERE!!!');
+                            res.render('empty');
                             res.end();
+                            return;
                         }
                         else{
                             console.error(err);
@@ -73,8 +77,9 @@ router.get(/\/.*/, function(req, res, next){
                 });
             }
             else{
-                res.status(404).send('The item you\'re looking for doesn\'t exist');
+                res.render('404');
                 res.end();
+                return;
             }
         }
     });
