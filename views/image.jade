@@ -11,8 +11,8 @@ block content
                 a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
         li 
             span= lastCrumb.name
-
-    a(tabindex="-1" href="/logout") Logout
+        div(style="float: right")
+            a(tabindex="-1" href="/logout") Logout
     
     div.container-fluid
         - var path
@@ -30,7 +30,7 @@ block content
                     a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
                 - }
             li 
-                a(title="Access Key: k" accesskey="k" ref=path + '?start=' + start) Up
+                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start) Up
             li.next
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
