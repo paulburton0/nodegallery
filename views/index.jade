@@ -35,26 +35,27 @@ block content
         //-div.content
         - var colnum = 1;
         - var tabIndex = 1;
-        each item in content 
-            .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
-                if item.type == "directory"
-                    a(tabindex=tabIndex href="#{item.relativePath}").img-thumbnail
-                        span(style='font-size: 10em').glyphicon.glyphicon-folder-open
-                        br
-                        span #{item.name}
-                else
-                    a(tabindex=tabindex href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
-                        img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight, title=item.name)
-            - if(colnum % 2 == 0)
-                .clearfix.visible-sm-block
-            - if(colnum % 3 == 0)
-                .clearfix.visible-md-block
-            - if(colnum % 4 == 0)
-                .clearfix.visible-lg-block
-            - colnum++;
-            - tabIndex++;
+        center
+            each item in content 
+                .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
+                    if item.type == "directory"
+                        a(tabindex=tabIndex href="#{item.relativePath}").img-thumbnail
+                            span(style='font-size: 10em').glyphicon.glyphicon-folder-open
+                            br
+                            span #{item.name}
+                    else
+                        a(tabindex=tabindex href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                            img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight, title=item.name)
+                - if(colnum % 2 == 0)
+                    .clearfix.visible-sm-block
+                - if(colnum % 3 == 0)
+                    .clearfix.visible-md-block
+                - if(colnum % 4 == 0)
+                    .clearfix.visible-lg-block
+                - colnum++;
+                - tabIndex++;
 
-        .clearfix
+            .clearfix
         ul.pager
             if prev < 0
                 li.previous.disabled 
