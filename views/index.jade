@@ -20,18 +20,22 @@ block content
             - var prev = Number(start) - 12;
             - var next = Number(start) + 12;
             if prev < 0
-                li.previous.disabled 
-                    a(tabindex="-1" href='#') Previous
+                li.previous.btn-lg.disabled 
+                    a(tabindex="-1" href='#') 
+                        span.glyphicon.glyphicon-arrow-left
             else
-                li.previous
-                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev) Previous
+                li.previous.btn-lg
+                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                        span.glyphicon.glyphicon-arrow-left
             
             - if(content.length < 12 || end === true)
-                li.next.disabled
-                    a(tabindex="-1" href='#') Next
+                li.next.btn-lg.disabled
+                    a(tabindex="-1" href='#')
+                        span.glyphicon.glyphicon-arrow-right
             - else
-                li.next
-                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next) Next
+                li.next.btn-lg
+                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                        span.glyphicon.glyphicon-arrow-right
         //-div.content
         - var colnum = 1;
         - var tabIndex = 1;
@@ -58,15 +62,19 @@ block content
             .clearfix
         ul.pager
             if prev < 0
-                li.previous.disabled 
-                    a(tabindex="-1" href='#') Previous
+                li.previous.btn-lg.disabled 
+                    a(tabindex="-1" href='#')
+                        span.glyphicon.glyphicon-arrow-left
             else
-                li.previous
-                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev) Previous
+                li.previous.btn-lg
+                    a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                        span.glyphicon.glyphicon-arrow-left
             - if(content.length < 12 || end === true)
-                li.next.disabled
-                    a(tabindex="-1" href='#') Next
+                li.next.btn-lg.disabled
+                    a(tabindex="-1" href='#')
+                        span.glyphicon.glyphicon-arrow-right
             - else
-                li.next
-                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next) Next
+                li.next.btn-lg
+                    a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                        span.glyphicon.glyphicon-arrow-right
   div.footer

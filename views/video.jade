@@ -24,17 +24,20 @@ block content
             - path = pathslice.join('/'); 
         - }
         ul.pager
-            li.previous
+            li.previous.btn-lg
                 - if(number > 0){
                     - var prevNumber = number - 1;
-                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber)
+                        span.glyphicon.glyphicon-arrow-left
                 - }
-            li 
-                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start) Up
-            li.next
+            li.btn-lg 
+                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
+                    span.glyphicon.glyphicon-arrow-up
+            li.next.btn-lg
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
-                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
+                        span.glyphicon.glyphicon-arrow-right
                 - }
 
     .embed-responsive.embed-responsive-4by3
@@ -44,19 +47,22 @@ block content
             - }
             - else if(/\.mp4$/i.test(webm)){
                 source(src=webm type='video/mp4')
-            - }
-    - //div.container-fluid
+        - }
+    div.container-fluid
         ul.pager
-            li.previous
+            li.previous.btn-lg
                 - if(number > 0){
                     - var prevNumber = number - 1;
-                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) Previous 
+                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber)
+                        span.glyphicon.glyphicon-arrow-left
                 - }
-            li 
-                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start) Up
-            li.next
+            li.btn-lg 
+                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
+                    span.glyphicon.glyphicon-arrow-up
+            li.next.btn-lg
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
-                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber) Next
+                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
+                        span.glyphicon.glyphicon-arrow-right
                 - }
     div.footer
