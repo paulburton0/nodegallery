@@ -33,7 +33,7 @@ block content
             li.btn-lg
                 a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
                     span.glyphicon.glyphicon-arrow-up
-            li.next.btn.lg
+            li.next.btn-lg
                 - var nextNumber = number + 1;
                 - if(nextNumber < list.length){
                     a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
