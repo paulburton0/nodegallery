@@ -1,5 +1,17 @@
 extends layout
 block content
+    script(type='text/javascript').
+        $(window).keypress(function(e){
+            var video = document.getElementById("videoPlayer");
+            if (e.which == 32) {
+                if (video.paused == true){
+                    video.play();
+                }
+                else{
+                    video.pause();
+                }
+            }
+        });
     - number = Number(number);
     - var lastCrumb = breadcrumbs.pop();
     - start = number - (number % 12);
@@ -41,7 +53,7 @@ block content
                 - }
 
     .embed-responsive.embed-responsive-4by3
-        video(controls=true preload=true).embed-responsive-item
+        video(id="videoPlayer" controls=true preload=true).embed-responsive-item
             - if(/\.webm$/i.test(webm)){
                 source(src=webm type='video/webm')
             - }
@@ -66,3 +78,5 @@ block content
                         span.glyphicon.glyphicon-arrow-right
                 - }
     div.footer
+
+
