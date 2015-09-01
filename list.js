@@ -124,8 +124,13 @@ exports.getList = function(start, dir, relDir, cb){
 // reDir - relative path, used to cache thumbnails
 // dirContents - the array of objects created in the getList function
 exports.composeResults= function(start, relDir, dirContents, cb){
+    var end;
     // Slice the contents down to only 12 results.
     dirContentsSlice = dirContents.slice(start, Number(start) + 12);
+
+    if(dirContents.length == 12){
+        end = true;
+    }
 
     var iterator = dirContentsSlice.length; // This is decremented each time an item is added to the final results array, used to coordinate the 12 async processes.
 
@@ -162,6 +167,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                 results.sort(function(a, b){
                                                     return a.number - b.number;
                                                 });
+                                                if(end){
+                                                    results.push('end');
+                                                }
                                                 return cb(null, results);
                                             }
                                             return;
@@ -175,6 +183,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                 results.sort(function(a, b){
                                                     return a.number - b.number;
                                                 });
+                                                if(end){
+                                                    results.push('end');
+                                                }
                                                 return cb(null, results);
                                             }
                                         })
@@ -196,6 +207,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                 results.sort(function(a, b){
                                                     return a.number - b.number;
                                                 });
+                                                if(end){
+                                                    results.push('end');
+                                                }
                                                 return cb(null, results);
                                             }
                                             return;
@@ -215,6 +229,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                         results.sort(function(a, b){
                                                             return a.number - b.number;
                                                         });
+                                                        if(end){
+                                                            results.push('end');
+                                                        }
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -226,6 +243,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                     results.sort(function(a, b){
                                                         return a.number - b.number;
                                                     });
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
                                                     return cb(null, results);
                                                 }
                                             });
@@ -244,6 +264,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                         results.sort(function(a, b){
                                                             return a.number - b.number;
                                                         });
+                                                        if(end){
+                                                            results.push('end');
+                                                        }
                                                         return cb(null, results);
                                                     }
                                                     return;
@@ -255,6 +278,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                     results.sort(function(a, b){
                                                         return a.number - b.number;
                                                     });
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
                                                     return cb(null, results);
                                                 }
                                             });
@@ -275,6 +301,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                 results.sort(function(a, b){
                                     return a.number - b.number;
                                 });
+                                if(end){
+                                    results.push('end');
+                                }
                                 return cb(null, results);
                             }
                         }
@@ -291,6 +320,9 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                 results.sort(function(a, b){
                     return a.number - b.number;
                 });
+                if(end){
+                    results.push('end');
+                }
                 return cb(null, results);
             }
         }

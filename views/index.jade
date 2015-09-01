@@ -28,7 +28,7 @@ block content
                     a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
                         span.glyphicon.glyphicon-arrow-left
             
-            - if(content.length < 12 || end === true)
+            - if(content.length < 12 || end )
                 li.next.btn-lg.disabled
                     a(tabindex="-1" href='#')
                         span.glyphicon.glyphicon-arrow-right
@@ -69,7 +69,7 @@ block content
                 li.previous.btn-lg
                     a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
                         span.glyphicon.glyphicon-arrow-left
-            - if(content.length < 12 || end === true)
+            - if(content.length < 12 || end )
                 li.next.btn-lg.disabled
                     a(tabindex="-1" href='#')
                         span.glyphicon.glyphicon-arrow-right
