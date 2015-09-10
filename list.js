@@ -25,20 +25,34 @@ exports.getList = function(start, dir, relDir, cb){
         
         var filesTemp = [];
         var iterator = files.length;
+        console.error(iterator);
         files.map(function(item){
-            if(/\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
-                filesTemp.push(item);
-                iterator--;
-                if(! iterator){
-                    if(filesTemp.length == 0){
-                        err = '999';
-                        return cb(err);
-                    }
-                }
-            }
             var stats = fs.stat(path.join(dir, item), function(err, stats){
                 if(stats.isDirectory()){
+                    console.error(item);
+                    console.error(item);
                     filesTemp.push(item)
+                    iterator--;
+                    if(! iterator){
+                        if(filesTemp.length == 0){
+                            err = '999';
+                            return cb(err);
+                        }
+                    }
+                }
+                else if(/\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
+                    console.error(item);
+                    filesTemp.push(item);
+                    iterator--;
+                    if(! iterator){
+                        if(filesTemp.length == 0){
+                            err = '999';
+                            return cb(err);
+                        }
+                    }
+                }
+                else{
+                    console.error(item);
                     iterator--;
                     if(! iterator){
                         if(filesTemp.length == 0){
