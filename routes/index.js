@@ -58,7 +58,6 @@ router.get(/\/.*/, function(req, res, next){
                             return;
                         }
                         else if(err == '999'){
-                            console.error('HERE!!!');
                             res.render('empty');
                             res.end();
                             return;

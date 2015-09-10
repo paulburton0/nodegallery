@@ -23,7 +23,19 @@ exports.getList = function(start, dir, relDir, cb){
             return cb(err);    
         }
         
-        if(files.length == 0){
+        var filesTemp = [];
+        files.map(function(item){
+            if(/\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
+                filesTemp.push(item);
+            }
+            var stats = fs.stat(path.join(dir, item), function(err, stats){
+                if(stats.isDirectory()){
+                    filesTemp.push(item)
+                }
+            });
+
+        });
+        if(filesTemp.length == 0){
             err = '999';
             return cb(err);
         }
