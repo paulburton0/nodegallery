@@ -68,7 +68,7 @@ router.get(/\/.*/, function(req, res, next){
                         }
                     }
                     dirlist.composeResults(start, pathname, list, function(err, shortList){
-                        res.render('index', {title: pathname, content: shortList, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname)});
+                        res.render('index', {title: pathname, content: shortList, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname), auth: settings.useAuth});
                         dirlist.getList(start, absPath, pathname, function(err, list){
                             dirlist.composeResults(Number(start) + 12, pathname, list, function(){return});
                         }); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
@@ -107,7 +107,7 @@ router.get(/\/.*/, function(req, res, next){
         if(err){
             console.error(err);
         }
-        res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list});
+        res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
     });
 }, function(req, res, next){
     if(settings.useAuth && req.cookies.nodegallery != auth.username){
@@ -133,7 +133,7 @@ router.get(/\/.*/, function(req, res, next){
         if(err){
             console.error(err);
         }
-        res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number,  breadcrumbs: getBreadcrumbs(pathname), list: list});
+        res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number,  breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
     });
 }, function(req, res){
     req.pathname = '/login';

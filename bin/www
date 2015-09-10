@@ -9,11 +9,20 @@ var app = require('../app');
 var debug = require('debug')('nodegallery:server');
 var fs = require('fs');
 var http = settings.useHttps ? require('https') : require('http');
+var path = require('path');
 
-var options = {
-  key: fs.readFileSync(settings.sslKey),
-  cert: fs.readFileSync(settings.sslCert)
-};
+try{
+    fs.symlinkSync(settings.imageDirectory, path.join(__dirname, '../public', settings.imageDirectory.split('/').slice(-1).toString()));
+}
+catch(e){
+}
+
+if(settings.useHttps){
+    var options = {
+      key: fs.readFileSync(settings.sslKey),
+      cert: fs.readFileSync(settings.sslCert)
+    };
+}
 
 /**
  * Get port from environment and store in Express.

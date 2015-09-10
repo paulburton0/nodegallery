@@ -11,8 +11,9 @@ block content
                 a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
         li 
             span= lastCrumb.name
-        div(style="float: right")
-            a(tabindex="-1" href="/logout") Logout
+        if auth
+            div(style="float: right")
+                a(tabindex="-1" href="/logout") Logout
     
     div.container-fluid
         - var path
