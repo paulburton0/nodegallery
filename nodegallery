@@ -1,0 +1,14 @@
+#!/bin/bash
+
+appname=$0
+apppath="$HOME/$appname/"
+
+case $1 in
+    start)
+        cd $apppath
+        exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+        ;;
+    stop)
+        pkill -f "$appname" 
+        ;;
+esac

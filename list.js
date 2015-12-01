@@ -75,7 +75,7 @@ exports.getList = function(start, dir, relDir, cb){
             
             // Do not include files/directories that start with '.' or html files.
             if(item.name == undefined || /^\./.test(item.name) || /\.html$/i.test(item.name)){
-                //If we're at the end of the array of direfctory contents, call composeResults.
+                //If we're at the end of the array of directory contents, call composeResults.
                 if(index == files.length - 1){
                     dirDirs.sort(function(a, b){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -164,7 +164,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
     // Slice the contents down to only 12 results.
     dirContentsSlice = dirContents.slice(start, Number(start) + 12);
 
-    if(dirContents.length == 12){
+    if(dirContents.length <= Number(start) + 12){
         end = true;
     }
 
