@@ -1,5 +1,16 @@
 extends layout
 block content
+    - var pages;
+    - if (total <= 12){
+    -    pages = null;
+    - }
+    - else if(total % 12 > 0){
+    -    pages = parseInt(total / 12) + 1;
+    - }
+    - else {
+        - pages = total / 12;
+    - }
+
     if content[content.length - 1] == 'end'
         - var end = true;
         - content.pop();
@@ -28,7 +39,28 @@ block content
                 li.previous.btn-lg
                     a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
                         span.glyphicon.glyphicon-arrow-left
-            
+
+            if pages
+                ul.pagination.pagination-lg.hidden-xs
+                    if ! start || start <= 1 
+                        li.active
+                            span= "1"
+
+                    else
+                        li
+                            a(href=pathname + '?start=1')
+                                span= "1"
+
+                    - for(i=1; i<pages; i++){
+                        if start == i * 12
+                            li.active
+                                span= i + 1
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + i * 12)
+                                    span= i + 1
+                    - } 
             - if(content.length < 12 || end )
                 li.next.btn-lg.disabled
                     a(tabindex="-1" href='#')
@@ -70,6 +102,29 @@ block content
                 li.previous.btn-lg
                     a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
                         span.glyphicon.glyphicon-arrow-left
+
+            if pages
+                ul.pagination.pagination-lg.hidden-xs
+                    if ! start || start <= 1 
+                        li.active
+                            span= "1"
+
+                    else
+                        li
+                            a(href=pathname + '?start=1')
+                                span= "1"
+
+                    - for(i=1; i<pages; i++){
+                        if start == i * 12
+                            li.active
+                                span= i + 1
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + i * 12)
+                                    span= i + 1
+                    - } 
+
             - if(content.length < 12 || end )
                 li.next.btn-lg.disabled
                     a(tabindex="-1" href='#')
