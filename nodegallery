@@ -1,14 +1,48 @@
 #!/bin/bash
 
-appname=$0
+# Rename this script to whatever you want your applicaiton to be. You can move it into your path. Note that if the application directory is not in your home directory, you need to update the 'apppath' variable value below.
+
+appname=$(basename $0)
 apppath="$HOME/$appname/"
 
-case $1 in
+case "$1" in
     start)
-        cd $apppath
-        exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+        if [ "$(pidof $appname)" == '' ]; then
+            echo -n "Starting $appname ... "
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done. "
+        else
+            echo "$appname is already running."
+        fi
         ;;
     stop)
-        pkill -f "$appname" 
+        if [ "$(pidof $appname)" == '' ]; then
+            echo "$appname is not running."
+        else
+            echo -n "Stopping $appname ... "
+            pkill -f "$appname" 2>/dev/null
+            echo "done."
+        fi
+        ;;
+    restart)
+        if [ "$(pidof $appname)" == '' ]; then
+            echo -n "$appname is not running. Starting it now ..."
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done."
+        else
+            echo -n "Restarting $appname ... "
+            pkill -f "$appname" 2>/dev/null
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done. "
+        fi
+        ;;
+    help)
+        echo "$appname [start|stop|restart]"
+        ;;
+    *)
+        echo "$appname [start|stop|restart]"
         ;;
 esac
