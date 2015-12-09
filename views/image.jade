@@ -5,26 +5,16 @@ block content
     - start = number - (number % 12);
     - var crumbNum = 0
     .truncate-ellipsis
-        ul.breadcrumb
+        ul.breadcrumb(style="width: 85%")
             each crumb in breadcrumbs
-                - // if (crumb.name.length > 20){
-                    - // var begin = crumb.name.substring(0, 8);
-                    - // var end = crumb.name.substring(crumb.name.length - 7);
-                    - // crumb.name = begin + '...' + end
-                - // }
                 - crumbNum++;
                 li
                     a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
             li 
-                - // if (lastCrumb.name.length > 20){
-                    - // var begin = lastCrumb.name.substring(0, 8);
-                    - // var end = lastCrumb.name.substring(lastCrumb.name.length - 7);
-                    - // lastCrumb.name = begin + '...' + end
-                - // }
                 span= lastCrumb.name
-            if auth
-                div(style="z-index=-10000; float: right")
-                    a(tabindex="-1" href="/logout") Logout
+        if auth
+            div(style="padding-right: 10px; white-space: nowrap; overflow: visible; background: #f5f5f5; text-align: right")
+                a(tabindex="-1" href="/logout") Logout
     
     div.container-fluid
         center
