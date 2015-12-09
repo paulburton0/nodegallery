@@ -4,60 +4,73 @@ block content
     - var lastCrumb = breadcrumbs.pop();
     - start = number - (number % 12);
     - var crumbNum = 0
-    ul.breadcrumb
-        each crumb in breadcrumbs
-            - crumbNum++;
-            li
-                a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
-        li 
-            span= lastCrumb.name
-        if auth
-            div(style="float: right")
-                a(tabindex="-1" href="/logout") Logout
+    .truncate-ellipsis
+        ul.breadcrumb
+            each crumb in breadcrumbs
+                - // if (crumb.name.length > 20){
+                    - // var begin = crumb.name.substring(0, 8);
+                    - // var end = crumb.name.substring(crumb.name.length - 7);
+                    - // crumb.name = begin + '...' + end
+                - // }
+                - crumbNum++;
+                li
+                    a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
+            li 
+                - // if (lastCrumb.name.length > 20){
+                    - // var begin = lastCrumb.name.substring(0, 8);
+                    - // var end = lastCrumb.name.substring(lastCrumb.name.length - 7);
+                    - // lastCrumb.name = begin + '...' + end
+                - // }
+                span= lastCrumb.name
+            if auth
+                div(style="z-index=-10000; float: right")
+                    a(tabindex="-1" href="/logout") Logout
     
     div.container-fluid
-        - var path
-        - var pathslice = pathname.split('/').slice(0,-1);
-        - if(pathslice == ''){ 
-            - path = '/';
-        - }
-        - else{
-            - path = pathslice.join('/'); 
-        - }
-        ul.pager
-            li.previous.btn-lg
-                - if(number > 0){
-                    - var prevNumber = number - 1;
-                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) 
-                        span.glyphicon.glyphicon-arrow-left
-                - }
-            li.btn-lg
-                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
-                    span.glyphicon.glyphicon-arrow-up
-            li.next.btn-lg
-                - var nextNumber = number + 1;
-                - if(nextNumber < list.length){
-                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
-                        span.glyphicon.glyphicon-arrow-right
-                - }
+        center
+            - var path
+            - var pathslice = pathname.split('/').slice(0,-1);
+            - if(pathslice == ''){ 
+                - path = '/';
+            - }
+            - else{
+                - path = pathslice.join('/'); 
+            - }
+            ul.pager
+                li.previous.btn-lg
+                    - if(number > 0){
+                        - var prevNumber = number - 1;
+                        a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) 
+                            span.glyphicon.glyphicon-arrow-left
+                    - }
+                li.btn-lg
+                    a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
+                        span.glyphicon.glyphicon-arrow-up
+                li.next.btn-lg
+                    - var nextNumber = number + 1;
+                    - if(nextNumber < list.length){
+                        a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
+                            span.glyphicon.glyphicon-arrow-right
+                    - }
 
     center
         img(src=image).img-responsive.center-block.img-centered.padding-0
     div.container-fluid
-        ul.pager
-            li.previous.btn-lg
-                - if(number > 0){
-                    - var prevNumber = number - 1;
-                    a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) 
-                        span.glyphicon.glyphicon-arrow-left
-                - }
-            li.btn-lg 
-                a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
-                    span.glyphicon.glyphicon-arrow-up
-            li.next.btn-lg
-                - var nextNumber = number + 1;
-                - if(nextNumber < list.length){
-                    a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
-                        span.glyphicon.glyphicon-arrow-right
-                - }
+        center
+            ul.pager
+                li.previous.btn-lg
+                    - if(number > 0){
+                        - var prevNumber = number - 1;
+                        a(title="Access Key: h" accesskey="h" href=list[prevNumber].relativePath + '?start=' + start + '&number=' + prevNumber) 
+                            span.glyphicon.glyphicon-arrow-left
+                    - }
+                li.btn-lg 
+                    a(title="Access Key: k" accesskey="k" href=path + '?start=' + start)
+                        span.glyphicon.glyphicon-arrow-up
+                li.next.btn-lg
+                    - var nextNumber = number + 1;
+                    - if(nextNumber < list.length){
+                        a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
+                            span.glyphicon.glyphicon-arrow-right
+                    - }
     div.footer
