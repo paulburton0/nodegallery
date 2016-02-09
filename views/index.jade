@@ -46,7 +46,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 12 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
+                    - for(i = page < 12 || pages < 20 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
                         if i >= pages + 1
                            - break;
                             
@@ -78,7 +78,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 9 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
+                    - for(i = page < 9 || pages < 16 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
                         if i >= pages + 1
                            - break;
                             
@@ -110,7 +110,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 6 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
+                    - for(i = page < 6 || pages < 10 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
                         if i >= pages + 1
                            - break;
                             
@@ -151,19 +151,24 @@ block content
                         a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
                             span.glyphicon.glyphicon-arrow-right
             .clearfix
-            //-div.content
             - var colnum = 1;
             - var tabIndex = 1;
                 each item in content 
+                    - var itemTitle = item.name;
+                    - if(item.name.length > 23){
+                        - var nameBegin = item.name.substring(0,9);
+                        - var nameEnd = item.name.substring(item.name.length - 9);
+                        - item.name = nameBegin + '...' + nameEnd;
+                    - }
                     .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
                         if item.type == "directory"
-                            a(tabindex=tabIndex href="#{item.relativePath}").img-thumbnail
+                            a(tabindex=tabIndex title="#{itemTitle}" href="#{item.relativePath}").img-thumbnail
                                 span(style='font-size: 10em').glyphicon.glyphicon-folder-close
                                 br
                                 span #{item.name}
                         else
-                            a(tabindex=tabindex href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
-                                img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight, title=item.name)
+                            a(tabindex=tabindex title="#{itemTitle}" href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                                img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
                     - if(colnum % 2 == 0)
                         .clearfix.visible-sm-block
                     - if(colnum % 3 == 0)
@@ -188,7 +193,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 12 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
+                    - for(i = page < 12 || pages < 20 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
                         if i >= pages + 1
                            - break;
                             
@@ -220,7 +225,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 9 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
+                    - for(i = page < 9 || pages < 16 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
                         if i >= pages + 1
                            - break;
                             
@@ -252,7 +257,7 @@ block content
 
                     - var page = Number((start / 12) + 1)
 
-                    - for(i = page < 6 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
+                    - for(i = page < 6 || pages < 10 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
                         if i >= pages + 1
                            - break;
                             

@@ -10,13 +10,14 @@ To use nodegallery, follow these simple steps:
     module.exports = { port : '3000',  <--- the port number you want nodegallery to listen on  
                                sslKey : 'ssl/ssl-cert-snakeoil.key',   <--- the path to your SSL key file  
                                sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
+                               sslCaCert : 'ssl/ca_cert.pem',  <--- only use this if you have a CA certificate (i.e. if you're not using a self-signed cert.)
                                useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
                                imageDirectory : '/home/pburton/imagesx' <--- The path to your root images directory  
                                useauth: true,       <--- 'true' to require a login to match what's in the auth.js file  
                      }
   ```
 
-2. Add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
+2. If you want to use authentication, add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
 
   ```
     module.exports = { username: 'username',  
@@ -24,11 +25,19 @@ To use nodegallery, follow these simple steps:
                      }  
   ```
 
-3. Run nodegallery with the command  
+3. Copy the executable nodegallery script to your PATH. Then you can run nodegallery with the command  
 
   ```
-    $ node bin/www  
+    $ nodegallery start
   ```
+
+  for more information, run the command
+
+  ```
+    $ nodegallery help
+  ```
+
+  You can name your applcation whatever you want by renaming the executable init script and making sure the $apppath variable at the beginning of that file points to the location of your application.
 
 4. You're done. Navigate to your nodegallery to see your pictures and videos.  
 

@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# Rename this script to whatever you want your applicaiton to be. You can move it into your path. Note that if the application directory is not in your home directory, you need to update the 'apppath' variable value below.
-
 appname=$(basename $0)
 apppath="$HOME/$appname/"
+
+if [ ! -e "$apppath/logs" ]; then
+    mkdir "$apppath/logs"
+fi
 
 case "$1" in
     start)

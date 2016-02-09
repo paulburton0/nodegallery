@@ -23,6 +23,9 @@ if(settings.useHttps){
       cert: fs.readFileSync(settings.sslCert)
     };
 }
+if(settings.sslCaCert){
+    options.ca = fs.readFileSync(settings.sslCaCert);
+}
 
 /**
  * Get port from environment and store in Express.
