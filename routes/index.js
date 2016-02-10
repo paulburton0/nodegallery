@@ -9,6 +9,8 @@ var auth = require('../auth');
 
 var imageDir = settings.imageDirectory;
 
+var cookieName = __dirname.split('/').slice(-2,-1).toString();
+
 // getBreadcrumbs composes the current path in a way that can be processed by the view.
 function getBreadcrumbs(pathname){
     var pathArray = pathname.split('/');
@@ -25,7 +27,7 @@ function getBreadcrumbs(pathname){
 
 // Regex here catches all requests
 router.get(/\/.*/, function(req, res, next){
-    if(settings.useAuth && req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies[cookieName] != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -83,7 +85,7 @@ router.get(/\/.*/, function(req, res, next){
         }
     });
 }, function(req, res, next){
-    if(settings.useAuth && req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies[cookieName] != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
@@ -109,7 +111,7 @@ router.get(/\/.*/, function(req, res, next){
         res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
     });
 }, function(req, res, next){
-    if(settings.useAuth && req.cookies.nodegallery != auth.username){
+    if(settings.useAuth && req.cookies[cookieName] != auth.username){
         req.pathname = '/login';
         res.redirect('/login');
     }
