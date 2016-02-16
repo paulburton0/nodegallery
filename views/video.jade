@@ -57,7 +57,7 @@ block content
 
     center
         .embed-responsive.embed-responsive-4by3
-            video(id="videoPlayer" controls preload).embed-responsive-item
+            video(id="videoPlayer" controls preload data-setup='{}').embed-responsive-item.video-js.vjs-default-skin
                 - if(/\.webm$/i.test(webm)){
                     source(src=webm type='video/webm')
                 - }
