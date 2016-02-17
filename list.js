@@ -14,26 +14,34 @@ var exports = module.exports = {};
 exports.getList = function(start, dir, relDir, cb){
     fs.readdir(dir, function(err, files){
         if(err){
-            return cb(err);
+            console.error(err);
+            errCode = '404'
+            return cb(errCode);
         }
 
         // If the 'start' query parameter is past the end of the files array, return a 404 error to the router.
         if(start > files.length){
-            err = '404';
-            return cb(err);    
+            errCode = '404';
+            return cb(errCode);    
         }
         
         var filesTemp = [];
         var iterator = files.length;
         files.map(function(item){
             var stats = fs.stat(path.join(dir, item), function(err, stats){
+                if(err){
+                    console.error(err);
+                    errCode = '999';
+                    return cb(errCode);
+                }
+
                 if(stats.isDirectory()){
                     filesTemp.push(item)
                     iterator--;
                     if(! iterator){
                         if(filesTemp.length == 0){
-                            err = '999';
-                            return cb(err);
+                            errCode = '999';
+                            return cb(errCode);
                         }
                     }
                 }
@@ -42,8 +50,8 @@ exports.getList = function(start, dir, relDir, cb){
                     iterator--;
                     if(! iterator){
                         if(filesTemp.length == 0){
-                            err = '999';
-                            return cb(err);
+                            errCode = '999';
+                            return cb(errCode);
                         }
                     }
                 }
@@ -51,8 +59,8 @@ exports.getList = function(start, dir, relDir, cb){
                     iterator--;
                     if(! iterator){
                         if(filesTemp.length == 0){
-                            err = '999';
-                            return cb(err);
+                            errCode = '999';
+                            return cb(errCode);
                         }
                     }
                 }
@@ -60,8 +68,8 @@ exports.getList = function(start, dir, relDir, cb){
         });
 
         if(files.length == 0){
-            err = '999';
-            return cb(err);
+            errCode = '999';
+            return cb(errCode);
         }
 
         var dirDirs = [];
@@ -74,8 +82,8 @@ exports.getList = function(start, dir, relDir, cb){
             item = { 'name' : item,  'absolutePath' : path.join(dir, item), 'relativePath' : path.join(relDir, item) };
             
             // Do not include files/directories that start with '.' or html files.
-            if(item.name == undefined || /^\./.test(item.name) || /\.html$/i.test(item.name)){
-                //If we're at the end of the array of directory contents, call composeResults.
+            if(item.name == undefined || /^\./.test(item.name) || /\.html?$/i.test(item.name)){
+
                 if(index == files.length - 1){
                     dirDirs.sort(function(a, b){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -97,6 +105,11 @@ exports.getList = function(start, dir, relDir, cb){
             
             // Stat the item
             fs.stat(item.absolutePath, function(err, stats){
+                if(err){
+                    console.error(err);
+                    errCode = '999';
+                    return cb(errCode);
+                }
                 // If the item is an image file
                 if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item.name)){ 
                     item.type = 'file';
