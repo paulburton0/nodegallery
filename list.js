@@ -4,14 +4,37 @@ var im = require('gm').subClass({imageMagick: true});
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
+var auth = require('./auth');
 
 var exports = module.exports = {};
 
+function contains(a, obj) {
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkPerms(userName, directory){
+    if(/\/$/.test(directory)){
+        directory = directory.substring(0,directory.length-1);
+    }
+    if(auth[userName].permissions[directory] == 'deny'){
+        return false;    
+    }
+    else{
+        return true;
+    }
+}
+
+exports.checkPerms = checkPerms;
 // Get the listing for the entire directory.
 // dir - absolute path to the directory containing images
 // reDir - relative path, used to cache thumbnails
 // start - from the URL attribute 'start'
-exports.getList = function(start, dir, relDir, cb){
+exports.getList = function(start, dir, relDir, userName, cb){
     fs.readdir(dir, function(err, files){
         if(err){
             console.error(err);
@@ -25,8 +48,14 @@ exports.getList = function(start, dir, relDir, cb){
             return cb(errCode);    
         }
         
+        if(files.length == 0){
+            errCode = '999';
+            return cb(errCode);
+        }
+
         var filesTemp = [];
         var iterator = files.length;
+
         files.map(function(item){
             var stats = fs.stat(path.join(dir, item), function(err, stats){
                 if(err){
@@ -43,8 +72,21 @@ exports.getList = function(start, dir, relDir, cb){
                     }
                 }
 
-                if(stats && stats.isDirectory()){
-                    filesTemp.push(item)
+                else if(stats && stats.isDirectory() && auth[userName].permissions != null){
+                    if(checkPerms(userName, path.join(relDir, item))){
+                        filesTemp.push(item)
+                        iterator--;
+                        if(! iterator){
+                            if(filesTemp.length == 0){
+                                errCode = '999';
+                                return cb(errCode);
+                            }
+                        }
+                    }
+                }
+
+                else if(stats && stats.isDirectory() && auth[userName].permissions == null){
+                    filesTemp.push(item);
                     iterator--;
                     if(! iterator){
                         if(filesTemp.length == 0){
@@ -53,7 +95,7 @@ exports.getList = function(start, dir, relDir, cb){
                         }
                     }
                 }
-                else if(stats && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
+                else if(stats && stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
                     filesTemp.push(item);
                     iterator--;
                     if(! iterator){
@@ -75,15 +117,11 @@ exports.getList = function(start, dir, relDir, cb){
             });
         });
 
-        if(files.length == 0){
-            errCode = '999';
-            return cb(errCode);
-        }
-
         var dirDirs = [];
         var dirFiles = [];
         var dirContents = [];
         var item = {};
+
 
         files.map(function(item, index){
             // Each item in the directory becomes an object.
@@ -91,7 +129,6 @@ exports.getList = function(start, dir, relDir, cb){
             
             // Do not include files/directories that start with '.' or html files.
             if(item.name == undefined || /^\./.test(item.name) || /\.html?$/i.test(item.name)){
-
                 if(index == files.length - 1){
                     dirDirs.sort(function(a, b){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -113,11 +150,6 @@ exports.getList = function(start, dir, relDir, cb){
             
             // Stat the item
             fs.stat(item.absolutePath, function(err, stats){
-                //if(err){
-                    //console.error(err);
-                    //errCode = '999';
-                    //return cb(errCode);
-                //}
                 // If the item is an image file
                 if(stats && stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item.name)){ 
                     item.type = 'file';
@@ -137,7 +169,46 @@ exports.getList = function(start, dir, relDir, cb){
                         return cb(null, dirContents);
                     }
                 }
-                else if( stats && stats.isDirectory()){
+                else if(stats && stats.isDirectory() && auth[userName].permissions != null){
+                    if(! checkPerms(userName, item.relativePath)){
+                        if(index == files.length - 1){
+                            dirDirs.sort(function(a, b){
+                                return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                            });
+                            dirFiles.sort(function(a, b){
+                                return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                            });
+                            dirContents = dirDirs.concat(dirFiles);
+                                dirContents.map(function(item, index){
+                                    item.number = index;    
+                                });
+
+                            return cb(null, dirContents);
+                        }
+                        else{
+                            return;
+                        }
+                    }
+                    else{
+                        item.type = 'directory';
+                        dirDirs.push(item); // Directories get unshifted to the beginning of the array.
+                        if(index == files.length - 1){
+                            dirDirs.sort(function(a, b){
+                                return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                            });
+                            dirFiles.sort(function(a, b){
+                                return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                            });
+                            dirContents = dirDirs.concat(dirFiles);
+                            dirContents.map(function(item, index){
+                                item.number = index;    
+                            });
+
+                            return cb(null, dirContents);
+                        }
+                    }
+                }
+                else if(stats && stats.isDirectory()){
                     item.type = 'directory';
                     dirDirs.push(item); // Directories get unshifted to the beginning of the array.
                     if(index == files.length - 1){

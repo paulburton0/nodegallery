@@ -12,17 +12,33 @@ To use nodegallery, follow these simple steps:
                                sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
                                sslCaCert : 'ssl/ca_cert.pem',  <--- only use this if you have a CA certificate (i.e. if you're not using a self-signed cert.)
                                useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
-                               imageDirectory : '/home/pburton/imagesx' <--- The path to your root images directory  
+                               imageDirectory : '/home/myhomedir/Pictures' <--- The path to your root images directory  
                                useauth: true,       <--- 'true' to require a login to match what's in the auth.js file  
                      }
   ```
 
-2. If you want to use authentication, add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
+2. If you want to use authentication and (rudimentary) access control, add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
 
   ```
-    module.exports = { username: 'username',  
-                       password: 'password'  
-                     }  
+
+    module.exports = { 
+                        johnuser: {
+                                   username: 'johnuser',
+                                   password: 'mypassword',
+                                   permissions: {
+                                                  '/privatepics': 'deny',
+                                                  '/videos/private': 'deny'
+                                                }
+                                 }
+                     }
+  ```
+
+  Note that access controls are only directory-based. To grant a user full access to all directories, use the following:
+
+  ```
+    
+    permissions: null
+
   ```
 
 3. Copy the executable nodegallery script to your PATH. Then you can run nodegallery with the command  
@@ -37,8 +53,8 @@ To use nodegallery, follow these simple steps:
     $ nodegallery help
   ```
 
-  You can name your applcation whatever you want by renaming the executable init script and making sure the $apppath variable at the beginning of that file points to the location of your application.
-
+  You can name your applcation whatever you want by renaming the executable init script and making sure the $apppath variable at the beginning of that script points to the location of your application.
+  
 4. You're done. Navigate to your nodegallery to see your pictures and videos.  
 
 ##Notes  
@@ -50,6 +66,6 @@ Nodegallery will show images in the following formats:
 
 Nodegallery will also only include HTML 5-compatible WEBM and MP4 videos. Your videos must be converted/transcoded to one of these formats in order to view them in nodegallery.  
 
-Files and directories that start with a '.' (period) will not appear in nodegallery.  
+Files and directories that start with a '.' (period) will not appear in nodegallery.
 
 It's probably a good idea to avoid directory, image, and video names with nonstandard URL characters in them.

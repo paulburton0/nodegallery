@@ -9,7 +9,7 @@ router.get('/login', function(req, res){
 });
 
 router.post('/login' , function(req, res) {
-    if(req.body.user == auth.username && req.body.password == auth.password){
+    if(auth[req.body.user] && req.body.password == auth[req.body.user].password){
         res.cookie(cookieName, req.body.user, { maxAge: 604800000, httpOnly: false }); 
         res.redirect('/');
     }

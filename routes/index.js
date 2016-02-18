@@ -27,115 +27,128 @@ function getBreadcrumbs(pathname){
 
 // Regex here catches all requests
 router.get(/\/.*/, function(req, res, next){
-    if(settings.useAuth && req.cookies[cookieName] != auth.username){
+    var pathname = url.parse(req.originalUrl, true).pathname;
+    if(settings.useAuth && ! req.cookies[cookieName]){
         req.pathname = '/login';
         res.redirect('/login');
     }
-    var pathname = url.parse(req.originalUrl, true).pathname;
-    var absPath = path.join(imageDir, pathname);
-    absPath = absPath.replace(/%20/g, ' ');
-    fs.stat(absPath, function(err, stats){ // If the requested file/directory doesn't exist, return a 404.
-        if(err){
-            console.error(err);
-        }
-        if(! stats){
+    else if(auth[req.cookies[cookieName]].permissions != null){
+        if(! dirlist.checkPerms(req.cookies[cookieName], pathname)){
             res.render('404');
             res.end();
             return;
         }
-        else{
-            var start = url.parse(req.originalUrl, true).query.start;
-            if(start == undefined){ 
-                start = 0;
+    }
+    else{
+        var absPath = path.join(imageDir, pathname);
+        absPath = absPath.replace(/%20/g, ' ');
+        fs.stat(absPath, function(err, stats){ // If the requested file/directory doesn't exist, return a 404.
+            if(err){
+                console.error(err);
             }
-            if(stats.isFile()){ // If the requested resource is a file, skip to the next route handler.
-                next();
-            }
-            else if(stats.isDirectory()){
-                dirlist.getList(start, absPath, pathname, function(err, list){ // Call the getList function in list.js
-                    if(err){
-                        if(err == '404'){
-                            res.render('404');
-                            res.end();
-                            return;
-                        }
-                        else if(err == '999'){
-                            res.render('empty');
-                            res.end();
-                            return;
-                        }
-                        else{
-                            console.error(err);
-                        }
-                    }
-                    dirlist.composeResults(start, pathname, list, function(err, shortList){
-                        res.render('index', {title: pathname, content: shortList, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname), auth: settings.useAuth, total: list.length});
-                        dirlist.getList(start, absPath, pathname, function(err, list){
-                            dirlist.composeResults(Number(start) + 12, pathname, list, function(){return});
-                        }); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
-                        dirlist.cleanup(pathname, absPath); // Clean up the directory in case contents have been moved/deleted.
-                    });
-                });
-            }
-            else{
+            if(! stats){
                 res.render('404');
                 res.end();
                 return;
             }
-        }
-    });
+            else{
+                var start = url.parse(req.originalUrl, true).query.start;
+                if(start == undefined){ 
+                    start = 0;
+                }
+                if(stats.isFile()){ // If the requested resource is a file, skip to the next route handler.
+                    next();
+                }
+                else if(stats.isDirectory()){
+                    dirlist.getList(start, absPath, pathname, req.cookies[cookieName], function(err, list){ // Call the getList function in list.js
+                        if(err){
+                            if(err == '404'){
+                                res.render('404');
+                                res.end();
+                                return;
+                            }
+                            else if(err == '999'){
+                                res.render('empty');
+                                res.end();
+                                return;
+                            }
+                            else{
+                                console.error(err);
+                            }
+                        }
+                        dirlist.composeResults(start, pathname, list, function(err, shortList){
+                            res.render('index', {title: pathname, content: shortList, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname), auth: settings.useAuth, total: list.length});
+                            //dirlist.getList(start, absPath, pathname, req.cookies[cookieName], function(err, list){
+                                //dirlist.composeResults(Number(start) + 12, pathname, list, function(){return});
+                            //}); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
+                            dirlist.cleanup(pathname, absPath); // Clean up the directory in case contents have been moved/deleted.
+                        });
+                    });
+                }
+                else{
+                    res.render('404');
+                    res.end();
+                    return;
+                }
+            }
+        });
+    }
 }, function(req, res, next){
-    if(settings.useAuth && req.cookies[cookieName] != auth.username){
+    if(settings.useAuth && ! req.cookies[cookieName]){
         req.pathname = '/login';
         res.redirect('/login');
     }
-    var pathname = url.parse(req.originalUrl, true).pathname;
-    var parentDir = pathname.split('/')
-    var absPath = path.join(imageDir, pathname);
-    if(/\.(webm|mp4)$/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
-        next();
-    } 
-    var start = url.parse(req.originalUrl, true).query.start;
-    var number = url.parse(req.originalUrl, true).query.number;
-    if(start == undefined){ 
-        start = 0;
-    }
-    var imageRoot = settings.imageDirectory.split('/').slice(-1).toString();
-    var absImagePath = '/' + path.join(imageRoot, pathname);
-    var relParentDir = pathname.split('/').slice(0, -1).join('/');
-    var absParentDir = path.join(settings.imageDirectory, relParentDir);
-    dirlist.getList(start, absParentDir, relParentDir, function(err, list){
-        if(err){
-            console.error(err);
+    else{
+        var pathname = url.parse(req.originalUrl, true).pathname;
+        var parentDir = pathname.split('/')
+        var absPath = path.join(imageDir, pathname);
+        if(/\.(webm|mp4)$/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
+            next();
+        } 
+        var start = url.parse(req.originalUrl, true).query.start;
+        var number = url.parse(req.originalUrl, true).query.number;
+        if(start == undefined){ 
+            start = 0;
         }
-        res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
-    });
+        var imageRoot = settings.imageDirectory.split('/').slice(-1).toString();
+        var absImagePath = '/' + path.join(imageRoot, pathname);
+        var relParentDir = pathname.split('/').slice(0, -1).join('/');
+        var absParentDir = path.join(settings.imageDirectory, relParentDir);
+        dirlist.getList(start, absParentDir, relParentDir, req.cookies[cookieName], function(err, list){
+            if(err){
+                console.error(err);
+            }
+            res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+        });
+    }
 }, function(req, res, next){
-    if(settings.useAuth && req.cookies[cookieName] != auth.username){
+    if(settings.useAuth && ! req.cookies[cookieName]){
         req.pathname = '/login';
         res.redirect('/login');
     }
-    var pathname = url.parse(req.originalUrl, true).pathname;
-    var start = url.parse(req.originalUrl, true).query.start;
-    if(start == undefined){ 
-        start = 0;
-    }
+    else{
+        var pathname = url.parse(req.originalUrl, true).pathname;
+        var start = url.parse(req.originalUrl, true).query.start;
+        if(start == undefined){ 
+            start = 0;
+        }
 
-    var start = url.parse(req.originalUrl, true).query.start;
-    var number = url.parse(req.originalUrl, true).query.number;
-    if(start == undefined){ 
-        start = 0;
-    }
-    var imageRoot = settings.imageDirectory.split('/').slice(-1).toString();
-    var absImagePath = '/' + path.join(imageRoot, pathname);
-    var relParentDir = pathname.split('/').slice(0, -1).join('/');
-    var absParentDir = path.join(settings.imageDirectory, relParentDir);
-    dirlist.getList(start, absParentDir, relParentDir, function(err, list){
-        if(err){
-            console.error(err);
+        var start = url.parse(req.originalUrl, true).query.start;
+        var number = url.parse(req.originalUrl, true).query.number;
+        if(start == undefined){ 
+            start = 0;
         }
-        res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number,  breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
-    });
+        var imageRoot = settings.imageDirectory.split('/').slice(-1).toString();
+        var absImagePath = '/' + path.join(imageRoot, pathname);
+        var relParentDir = pathname.split('/').slice(0, -1).join('/');
+        var absParentDir = path.join(settings.imageDirectory, relParentDir);
+        dirlist.getList(start, absParentDir, relParentDir, req.cookies[cookieName], function(err, list){
+            if(err){
+                console.error(err);
+            }
+            res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number,  breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+        });
+    }
 }, function(req, res){
     req.pathname = '/login';
     res.redirect('/login');
