@@ -30,12 +30,20 @@ exports.getList = function(start, dir, relDir, cb){
         files.map(function(item){
             var stats = fs.stat(path.join(dir, item), function(err, stats){
                 if(err){
-                    console.error(err);
-                    errCode = '999';
-                    return cb(errCode);
+                    console.error("Cannot read %s. Perhaps a corrupt file or a bad symlink.", item);
+                    iterator--;
+                    if(! iterator){
+                        if(filesTemp.length == 0){
+                            errCode = '999';
+                            return cb(errCode);
+                        }
+                    }
+                    else{
+                        return;
+                    }
                 }
 
-                if(stats.isDirectory()){
+                if(stats && stats.isDirectory()){
                     filesTemp.push(item)
                     iterator--;
                     if(! iterator){
@@ -45,7 +53,7 @@ exports.getList = function(start, dir, relDir, cb){
                         }
                     }
                 }
-                else if(/\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
+                else if(stats && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
                     filesTemp.push(item);
                     iterator--;
                     if(! iterator){
@@ -105,13 +113,13 @@ exports.getList = function(start, dir, relDir, cb){
             
             // Stat the item
             fs.stat(item.absolutePath, function(err, stats){
-                if(err){
-                    console.error(err);
-                    errCode = '999';
-                    return cb(errCode);
-                }
+                //if(err){
+                    //console.error(err);
+                    //errCode = '999';
+                    //return cb(errCode);
+                //}
                 // If the item is an image file
-                if(stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item.name)){ 
+                if(stats && stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item.name)){ 
                     item.type = 'file';
                     dirFiles.push(item); // This is the intermediate list of 'item' objects. Files get pushed to the end of the array.
                     if(index == files.length - 1){
@@ -129,7 +137,7 @@ exports.getList = function(start, dir, relDir, cb){
                         return cb(null, dirContents);
                     }
                 }
-                else if(stats.isDirectory()){
+                else if( stats && stats.isDirectory()){
                     item.type = 'directory';
                     dirDirs.push(item); // Directories get unshifted to the beginning of the array.
                     if(index == files.length - 1){
