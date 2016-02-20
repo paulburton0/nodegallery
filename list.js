@@ -282,11 +282,10 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                     fs.stat(item.thumbAbsolutePath, function(err, stats){ 
                         if(err){
                             if(err.code == 'ENOENT'){ // Only continue with thumbnail generation if the thumbnail doesn't already exist.
-                                // If the file is a webm video
-                                if(/\.(webm|mp4)$/.test(item.absolutePath)){
-                                    ffmpeg(item.absolutePath)
-                                        // If there's an error generating the thumbnail, use a generic image.
-                                        .on('error', function(err, stdout, stderr){
+                                if(/\.(webm|mp4)$/.test(item.absolutePath)){ // If the file is a webm video
+                                    ffmpeg(item.absolutePath).ffprobe(0, function(err, data){
+                                        if(err){
+                                            console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item); // Push the item to the final results array.
@@ -301,26 +300,74 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                 return cb(null, results);
                                             }
                                             return;
-                                        })
-                                        .on('end', function(){
-                                            iterator--;
-                                            fileResults.push(item);
-                                            item = null;
-                                            if(! iterator){
-                                                results = results.concat(dirResults, fileResults);
-                                                results.sort(function(a, b){
-                                                    return a.number - b.number;
-                                                });
-                                                if(end){
-                                                    results.push('end');
+                                        }
+                                        var cropWidth;
+                                        var cropHeight;
+                                        var scaleWidth;
+                                        var scaleHeight;
+                                        var cropX;
+                                        var cropY;
+                                        width = data.streams[0].width;
+                                        height = data.streams[0].height;
+                                        aspectFactor = height / width;
+                                        if(aspectFactor <= 1){ // Landscape
+                                            scaleFactor = 150 / height;
+                                            cropHeight = 150;
+                                            cropWidth = Math.floor(scaleFactor * width) > 200 ? 200 : Math.floor(scaleFactor * width);
+                                            cropX = Math.floor(((scaleFactor * width) - cropWidth) / 2);
+                                            cropY = 0;
+                                            scaleWidth = -1;
+                                            scaleHeight = 150
+                                        }
+                                        else if(aspectFactor > 1){ // Portrait
+                                            scaleFactor = 200 / width;
+                                            cropHeight = Math.floor(scaleFactor * height) > 150 ? 150 : Math.floor(scaleFactor * height);
+                                            cropWidth = 200;
+                                            cropX = 0;
+                                            cropY = Math.floor(((scaleFactor * height) - cropHeight) / 2);
+                                            scaleWidth = 200;
+                                            scaleHeight = -1;
+                                        }
+
+                                        ffmpeg(item.absolutePath)
+                                            // If there's an error generating the thumbnail, use a generic image.
+                                            .on('error', function(err, stdout, stderr){
+                                                console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                                iterator--;
+                                                item.thumb = '/images/NoThumb.png';
+                                                fileResults.push(item); // Push the item to the final results array.
+                                                if(! iterator){ // If there aren't any more images to process, finish up and return the callback.
+                                                    results = results.concat(dirResults, fileResults);
+                                                    results.sort(function(a, b){
+                                                        return a.number - b.number;
+                                                    });
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
+                                                    return cb(null, results);
                                                 }
-                                                return cb(null, results);
-                                            }
-                                        })
-                                        .seekInput('00:00:05.0') // Get the thumbnail frame from 5 seconds into the video.
-                                        .frames(1)
-                                        .size('200x?') // Resize the frame to 200px wide, with proportional height.
-                                        .save(item.thumbAbsolutePath);
+                                                return;
+                                            })
+                                            .on('end', function(){
+                                                iterator--;
+                                                fileResults.push(item);
+                                                item = null;
+                                                if(! iterator){
+                                                    results = results.concat(dirResults, fileResults);
+                                                    results.sort(function(a, b){
+                                                        return a.number - b.number;
+                                                    });
+                                                    if(end){
+                                                        results.push('end');
+                                                    }
+                                                    return cb(null, results);
+                                                }
+                                            })
+                                            .seekInput('00:00:05.0') // Get the thumbnail frame from 5 seconds into the video.
+                                            .frames(1)
+                                            .complexFilter(['scale=w=' + scaleWidth + ':h=' + scaleHeight + '[rescaled]', {filter: 'crop', options: {w: cropWidth, h: cropHeight, x: cropX, y: cropY}, inputs: 'rescaled'}])
+                                            .save(item.thumbAbsolutePath);
+                                    });
                                 }
                                 else{ // If the item is not a video, it's an image, so use im to create the thumbnail
                                     im(item.absolutePath)
@@ -346,9 +393,11 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                         if(features.width > features.height){ // If the image is in landscape, make the thumbnail 200px wide.
                                             im(item.absolutePath + '[0]') // '[0]' is used for gifs; it grabs the first frame.
                                             .resize(200, null) 
+                                            .crop(200, 150, 0, 0)
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
                                                 if (err){
+                                                    console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                                     item.thumb = '/images/NoThumb.png';
                                                     fileResults.push(item);
                                                     item = null;
@@ -380,10 +429,11 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                         }
                                         else{ // If the image is in portrait, make the thumbnail 200px high.
                                             im(item.absolutePath + '[0]') 
-                                            .resize(null, 200)
+                                            .resize(null, 150)
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
                                                 if (err){
+                                                    console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                                     item.thumb = '/images/NoThumb.png';
                                                     fileResults.push(item);
                                                     item = null;

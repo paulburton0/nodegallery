@@ -78,9 +78,9 @@ router.get(/\/.*/, function(req, res, next){
                         }
                         dirlist.composeResults(start, pathname, list, function(err, shortList){
                             res.render('index', {title: pathname, content: shortList, start: start, pathname: pathname, breadcrumbs: getBreadcrumbs(pathname), auth: settings.useAuth, total: list.length});
-                            //dirlist.getList(start, absPath, pathname, req.cookies[cookieName], function(err, list){
-                                //dirlist.composeResults(Number(start) + 12, pathname, list, function(){return});
-                            //}); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
+                            dirlist.getList(start, absPath, pathname, req.cookies[cookieName], function(err, list){
+                                dirlist.composeResults(Number(start) + 12, pathname, list, function(){return});
+                            }); // After the response is sent, call getList again for the next set of 12 images to pre-cache the thumbnails, if needed.
                             dirlist.cleanup(pathname, absPath); // Clean up the directory in case contents have been moved/deleted.
                         });
                     });
