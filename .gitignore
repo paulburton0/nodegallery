@@ -1,9 +1,6 @@
 public/nodegallery_cache/*
-public/imagesx
-ssl/*snakeoil*
 ssl/*.pem
 ssl/*.crt
+ssl/*.key
 auth.js
-public/Pictures
-public/Pictures/*
 logs/
