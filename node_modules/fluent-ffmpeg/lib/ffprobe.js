@@ -10,19 +10,20 @@ function legacyDisposition(key) { return key.match(/^DISPOSITION:/); }
 function parseFfprobeOutput(out) {
   var lines = out.split(/\r\n|\r|\n/);
   var data = {
-    streams: []
+    streams: [],
+    format: {}
   };
 
-  function parseBlock() {
+  function parseBlock(name) {
     var data = {};
 
     var line = lines.shift();
-    while (line) {
-      if (line.match(/^\[\//)) {
+    while (typeof line !== 'undefined') {
+      if (line.toLowerCase() == '[/'+name+']') {
         return data;
       } else if (line.match(/^\[/)) {
-        lines.unshift(line);
-        return data;
+        line = lines.shift();
+        continue;
       }
 
       var kv = line.match(/^([^=]+)=(.*)$/);
@@ -41,12 +42,12 @@ function parseFfprobeOutput(out) {
   }
 
   var line = lines.shift();
-  while (line) {
+  while (typeof line !== 'undefined') {
     if (line.match(/^\[stream/i)) {
-      var stream = parseBlock();
+      var stream = parseBlock('stream');
       data.streams.push(stream);
     } else if (line.toLowerCase() === '[format]') {
-      data.format = parseBlock();
+      data.format = parseBlock('format');
     }
 
     line = lines.shift();
@@ -78,16 +79,33 @@ module.exports = function(proto) {
    * @method FfmpegCommand#ffprobe
    * @category Metadata
    *
-   * @param {Number} [index] 0-based index of input to probe (defaults to last input)
+   * @param {?Number} [index] 0-based index of input to probe (defaults to last input)
+   * @param {?String[]} [options] array of output options to return
    * @param {FfmpegCommand~ffprobeCallback} callback callback function
    *
    */
-  proto.ffprobe = function(index, callback) {
-    var input;
+  proto.ffprobe = function() {
+    var input, index = null, options = [], callback;
 
-    if (typeof callback === 'undefined') {
-      callback = index;
+    // the last argument should be the callback
+    callback = arguments[arguments.length - 1];
 
+    // map the arguments to the correct variable names
+    switch (arguments.length) {
+      case 3:
+        index = arguments[0];
+        options = arguments[1];
+        break;
+      case 2:
+        if (typeof arguments[0] === 'number') {
+          index = arguments[0];
+        } else if (Array.isArray(arguments[0])) {
+          options = arguments[0];
+        }
+        break;
+    }
+
+    if (index === null) {
       if (!this._currentInput) {
         return callback(new Error('No input specified'));
       }
@@ -119,11 +137,7 @@ module.exports = function(proto) {
       var stderrClosed = false;
 
       // Spawn ffprobe
-      var ffprobe = spawn(path, [
-        '-show_streams',
-        '-show_format',
-        input.source
-      ]);
+      var ffprobe = spawn(path, ['-show_streams', '-show_format'].concat(options, input.source));
 
       ffprobe.on('error', function(err) {
         callback(err);
@@ -150,26 +164,28 @@ module.exports = function(proto) {
 
           // Handle legacy output with "TAG:x" and "DISPOSITION:x" keys
           [data.format].concat(data.streams).forEach(function(target) {
-            var legacyTagKeys = Object.keys(target).filter(legacyTag);
+            if (target) {
+              var legacyTagKeys = Object.keys(target).filter(legacyTag);
 
-            if (legacyTagKeys.length) {
-              target.tags = target.tags || {};
+              if (legacyTagKeys.length) {
+                target.tags = target.tags || {};
 
-              legacyTagKeys.forEach(function(tagKey) {
-                target.tags[tagKey.substr(4)] = target[tagKey];
-                delete target[tagKey];
-              });
-            }
+                legacyTagKeys.forEach(function(tagKey) {
+                  target.tags[tagKey.substr(4)] = target[tagKey];
+                  delete target[tagKey];
+                });
+              }
 
-            var legacyDispositionKeys = Object.keys(target).filter(legacyDisposition);
+              var legacyDispositionKeys = Object.keys(target).filter(legacyDisposition);
 
-            if (legacyDispositionKeys.length) {
-              target.disposition = target.disposition || {};
+              if (legacyDispositionKeys.length) {
+                target.disposition = target.disposition || {};
 
-              legacyDispositionKeys.forEach(function(dispositionKey) {
-                target.disposition[dispositionKey.substr(12)] = target[dispositionKey];
-                delete target[dispositionKey];
-              });
+                legacyDispositionKeys.forEach(function(dispositionKey) {
+                  target.disposition[dispositionKey.substr(12)] = target[dispositionKey];
+                  delete target[dispositionKey];
+                });
+              }
             }
           });
 
@@ -212,4 +228,3 @@ module.exports = function(proto) {
     });
   };
 };
-

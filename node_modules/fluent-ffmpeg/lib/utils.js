@@ -3,6 +3,7 @@
 
 var exec = require('child_process').exec;
 var isWindows = require('os').platform().match(/win(32|64)/);
+var which = require('which');
 
 var nlRegexp = /\r\n|\r|\n/g;
 var streamRegexp = /^\[?(.*?)\]?$/;
@@ -216,18 +217,12 @@ var utils = module.exports = {
       return callback(null, whichCache[name]);
     }
 
-    var cmd = 'which ' + name;
-    if (isWindows) {
-      cmd = 'where ' + name + '.exe';
-    }
-
-    exec(cmd, function(err, stdout) {
+    which(name, function(err, result){
       if (err) {
         // Treat errors as not found
-        callback(null, whichCache[name] = '');
-      } else {
-        callback(null, whichCache[name] = stdout.trim());
+        return callback(null, whichCache[name] = '');
       }
+      callback(null, whichCache[name] = result);
     });
   },
 
@@ -330,7 +325,7 @@ var utils = module.exports = {
       var ret = {
         frames: parseInt(progress.frame, 10),
         currentFps: parseInt(progress.fps, 10),
-        currentKbps: parseFloat(progress.bitrate.replace('kbits/s', '')),
+        currentKbps: progress.bitrate ? parseFloat(progress.bitrate.replace('kbits/s', '')) : 0,
         targetSize: parseInt(progress.size, 10),
         timemark: progress.time
       };

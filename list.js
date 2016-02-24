@@ -1,6 +1,6 @@
 var fs = require('fs');
 var path = require('path');
-var im = require('gm').subClass({imageMagick: true});
+var im = require('gm');
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
@@ -18,14 +18,19 @@ function contains(a, obj) {
 }
 
 function checkPerms(userName, directory){
-    if(/\/$/.test(directory)){
-        directory = directory.substring(0,directory.length-1);
-    }
-    if(auth[userName].permissions[directory] == 'deny'){
-        return false;    
+    if(/^\/$/.test(directory)){
+        return true;
     }
     else{
-        return true;
+        if(/\/$/.test(directory)){
+            directory = directory.substring(0,directory.length-1);
+        }
+        if(auth[userName].permissions[directory] == 'deny'){
+            return false;    
+        }
+        else{
+            return true;
+        }
     }
 }
 
@@ -285,6 +290,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                 if(/\.(webm|mp4)$/.test(item.absolutePath)){ // If the file is a webm video
                                     ffmpeg(item.absolutePath).ffprobe(0, function(err, data){
                                         if(err){
+                                            console.error("IM HERE!!!!!");
                                             console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
