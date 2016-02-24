@@ -290,7 +290,6 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                 if(/\.(webm|mp4)$/.test(item.absolutePath)){ // If the file is a webm video
                                     ffmpeg(item.absolutePath).ffprobe(0, function(err, data){
                                         if(err){
-                                            console.error("IM HERE!!!!!");
                                             console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
@@ -306,6 +305,13 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                 return cb(null, results);
                                             }
                                             return;
+                                        }
+                                        var thumbnailTime;
+                                        if(data.streams[0].duration < 6){
+                                            thumbnailTime = '00:00:01.0';
+                                        }
+                                        else{
+                                            thumbnailTime = '00:00:05.0';
                                         }
                                         var cropWidth;
                                         var cropHeight;
@@ -369,7 +375,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                                     return cb(null, results);
                                                 }
                                             })
-                                            .seekInput('00:00:05.0') // Get the thumbnail frame from 5 seconds into the video.
+                                            .seekInput(thumbnailTime) // Get the thumbnail frame from 5 seconds into the video.
                                             .frames(1)
                                             .complexFilter(['scale=w=' + scaleWidth + ':h=' + scaleHeight + '[rescaled]', {filter: 'crop', options: {w: cropWidth, h: cropHeight, x: cropX, y: cropY}, inputs: 'rescaled'}])
                                             .save(item.thumbAbsolutePath);
