@@ -385,6 +385,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                     im(item.absolutePath)
                                     .size(function (err, features) {
                                         if (err){
+                                            console.error("Cannot generate thumbnail for %s.", item.absolutePath);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item);
