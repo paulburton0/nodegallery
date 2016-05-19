@@ -290,7 +290,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                 if(/\.(webm|mp4)$/.test(item.absolutePath)){ // If the file is a webm video
                                     ffmpeg(item.absolutePath).ffprobe(0, function(err, data){
                                         if(err){
-                                            console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                            console.error("Cannot generate thumbnail for %s: %s", item.absolutePath, err);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item); // Push the item to the final results array.
@@ -344,7 +344,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                         ffmpeg(item.absolutePath)
                                             // If there's an error generating the thumbnail, use a generic image.
                                             .on('error', function(err, stdout, stderr){
-                                                console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                                console.error("Cannot generate thumbnail for %s: %s", item.absolutePath, err);
                                                 iterator--;
                                                 item.thumb = '/images/NoThumb.png';
                                                 fileResults.push(item); // Push the item to the final results array.
@@ -385,7 +385,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                     im(item.absolutePath)
                                     .size(function (err, features) {
                                         if (err){
-                                            console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                            console.error("Cannot generate thumbnail for %s: %s", item.absolutePath, err);
                                             iterator--;
                                             item.thumb = '/images/NoThumb.png';
                                             fileResults.push(item);
@@ -410,7 +410,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
                                                 if (err){
-                                                    console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                                    console.error("Cannot generate thumbnail for %s: %s", item.absolutePath, err);
                                                     item.thumb = '/images/NoThumb.png';
                                                     fileResults.push(item);
                                                     item = null;
@@ -446,7 +446,7 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                             .write(item.thumbAbsolutePath, function (err) {
                                                 iterator--;
                                                 if (err){
-                                                    console.error("Cannot generate thumbnail for %s.", item.absolutePath);
+                                                    console.error("Cannot generate thumbnail for %s: %s", item.absolutePath, err);
                                                     item.thumb = '/images/NoThumb.png';
                                                     fileResults.push(item);
                                                     item = null;
@@ -538,7 +538,6 @@ exports.cleanup = function(pathname, absPath){
 
             fs.stat(thumbPath, function(err, stats){
                 if(stats.isFile() || stats.isDirectory()){
-                    
                     fs.stat(originalPath, function(err, stats){
                         if(err && err.code == 'ENOENT'){
                             fs.stat(thumbPath, function(err, stats){

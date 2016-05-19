@@ -83,6 +83,9 @@ block content
                         a(title="Access Key: l" accesskey="l" href=list[nextNumber].relativePath + '?start=' + start + '&number=' + nextNumber)
                             span.glyphicon.glyphicon-arrow-right
                     - }
+    script.
+        var vThumbs = !{JSON.stringify(videoThumbs)};
+        console.error(vThumbs);
+        var video = videojs('videoPlayer');
+        video.thumbnails(vThumbs);
     div.footer
-
-

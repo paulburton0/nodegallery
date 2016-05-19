@@ -144,7 +144,31 @@ router.get(/\/.*/, function(req, res, next){
             if(err){
                 console.error(err);
             }
-            res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number,  breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+            //fileNameArray = pathname.split(/\//);
+            //fileName = fileNameArray.pop().toString();
+            //filePath = fileNameArray.join('/');
+            //videoThumbPath = path.join('..', '..', '..', 'nodegallery_cache', 'videothumbs', filePath);
+            //var thumbArray = {};
+            //fs.readdir(videoThumbPath, function(err, files){
+                //if(err){
+                    //console.error(err);
+                //}
+                //thumbIndex = 10;    
+                //files.forEach(function(file, index){
+                    //if(file.match(fileName)){
+                        //thumbArray[thumbIndex] = {src: path.join(filePath, file)};
+                        //thumbIndex += 10;
+                    //}                    
+                    //if(index + 1 == files.length){
+                    //for(i=10;i<=250;i+=10){
+                        //thumbArray[i] = {src: path.join(videoThumbPath, fileName + '_thumb_00' + i / 10 + '_.png')};
+                    //}
+                        //return res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, videoThumbs: thumbArray});
+                        
+                        res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+                    //}
+                //});
+            //});
         });
     }
 }, function(req, res){
