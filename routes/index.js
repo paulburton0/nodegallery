@@ -32,7 +32,7 @@ router.get(/\/.*/, function(req, res, next){
         req.pathname = '/login';
         res.redirect('/login');
     }
-    else if(auth[req.cookies[cookieName]].permissions != null && ! dirlist.checkPerms(req.cookies[cookieName], pathname)){
+    else if(settings.useAuth && auth[req.cookies[cookieName]].permissions != null && ! dirlist.checkPerms(req.cookies[cookieName], pathname)){
         res.render('404');
         res.end();
         return;

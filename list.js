@@ -4,7 +4,10 @@ var im = require('gm');
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
-var auth = require('./auth');
+var settings = require('../settings');
+if(settings.useAuth){
+    var auth = require('./auth');
+}
 
 var exports = module.exports = {};
 
