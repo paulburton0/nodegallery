@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    title= title
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/404.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+    script(src='/bootstrap/js/bootstrap.min.js')
+  body
+    .container
+        .row
+            .col-md-12
+                .error-template
+                    h1 Oops!
+                    h2 404 Not Found
+                    .error-details
+                        span Sorry, an error has occured, Requested page not found!
+                    .error-actions
+                        a(href="javascript:window.history.back()").btn.btn-primary.btn-lg
+                            span.glyphicon.glyphicon-arrow-left
+                            span Take Me Back 
+    .footer

@@ -264,42 +264,55 @@ var utils = module.exports = {
 
   /**
    * Extract codec data from ffmpeg stderr and emit 'codecData' event if appropriate
+   * Call it with an initially empty codec object once with each line of stderr output until it returns true
    *
    * @param {FfmpegCommand} command event emitter
-   * @param {String} stderr ffmpeg stderr output
+   * @param {String} stderrLine ffmpeg stderr output line
+   * @param {Object} codecObject object used to accumulate codec data between calls
+   * @return {Boolean} true if codec data is complete (and event was emitted), false otherwise
    * @private
    */
-  extractCodecData: function(command, stderr) {
-    var format= /Input #[0-9]+, ([^ ]+),/.exec(stderr);
-    var dur   = /Duration\: ([^,]+)/.exec(stderr);
-    var audio = /Audio\: (.*)/.exec(stderr);
-    var video = /Video\: (.*)/.exec(stderr);
-    var codecObject = { format: '', audio: '', video: '', duration: '' };
+  extractCodecData: function(command, stderrLine, codecsObject) {
+    var inputPattern = /Input #[0-9]+, ([^ ]+),/;
+    var durPattern = /Duration\: ([^,]+)/;
+    var audioPattern = /Audio\: (.*)/;
+    var videoPattern = /Video\: (.*)/;
 
-    if (format && format.length > 1) {
-      codecObject.format = format[1];
+    if (!('inputStack' in codecsObject)) {
+      codecsObject.inputStack = [];
+      codecsObject.inputIndex = -1;
+      codecsObject.inInput = false;
     }
 
-    if (dur && dur.length > 1) {
-      codecObject.duration = dur[1];
-    }
+    var inputStack = codecsObject.inputStack;
+    var inputIndex = codecsObject.inputIndex;
+    var inInput = codecsObject.inInput;
 
-    if (audio && audio.length > 1) {
+    var format, dur, audio, video;
+
+    if (format = stderrLine.match(inputPattern)) {
+      inInput = codecsObject.inInput = true;
+      inputIndex = codecsObject.inputIndex = codecsObject.inputIndex + 1;
+
+      inputStack[inputIndex] = { format: format[1], audio: '', video: '', duration: '' };
+    } else if (inInput && (dur = stderrLine.match(durPattern))) {
+      inputStack[inputIndex].duration = dur[1];
+    } else if (inInput && (audio = stderrLine.match(audioPattern))) {
       audio = audio[1].split(', ');
-      codecObject.audio = audio[0];
-      codecObject.audio_details = audio;
-    }
-    if (video && video.length > 1) {
+      inputStack[inputIndex].audio = audio[0];
+      inputStack[inputIndex].audio_details = audio;
+    } else if (inInput && (video = stderrLine.match(videoPattern))) {
       video = video[1].split(', ');
-      codecObject.video = video[0];
-      codecObject.video_details = video;
+      inputStack[inputIndex].video = video[0];
+      inputStack[inputIndex].video_details = video;
+    } else if (/Output #\d+/.test(stderrLine)) {
+      inInput = codecsObject.inInput = false;
+    } else if (/Stream mapping:|Press (\[q\]|ctrl-c) to stop/.test(stderrLine)) {
+      command.emit.apply(command, ['codecData'].concat(inputStack));
+      return true;
     }
 
-    var codecInfoPassed = /Press (\[q\]|ctrl-c) to stop/.test(stderr);
-    if (codecInfoPassed) {
-      command.emit('codecData', codecObject);
-      command._codecDataSent = true;
-    }
+    return false;
   },
 
 
@@ -307,18 +320,12 @@ var utils = module.exports = {
    * Extract progress data from ffmpeg stderr and emit 'progress' event if appropriate
    *
    * @param {FfmpegCommand} command event emitter
-   * @param {String} stderr ffmpeg stderr data
+   * @param {String} stderrLine ffmpeg stderr data
    * @param {Number} [duration=0] expected output duration in seconds
    * @private
    */
-  extractProgress: function(command, stderr, duration) {
-    var lines = stderr.split(nlRegexp);
-    var lastline = lines[lines.length - 2];
-    var progress;
-
-    if (lastline) {
-      progress = parseProgressLine(lastline);
-    }
+  extractProgress: function(command, stderrLine, duration) {
+    var progress = parseProgressLine(stderrLine);
 
     if (progress) {
       // build progress report object
@@ -357,5 +364,92 @@ var utils = module.exports = {
         return messages;
       }
     }, []).join('\n');
+  },
+
+
+  /**
+   * Creates a line ring buffer object with the following methods:
+   * - append(str) : appends a string or buffer
+   * - get() : returns the whole string
+   * - close() : prevents further append() calls and does a last call to callbacks
+   * - callback(cb) : calls cb for each line (incl. those already in the ring)
+   *
+   * @param {Numebr} maxLines maximum number of lines to store (<= 0 for unlimited)
+   */
+  linesRing: function(maxLines) {
+    var cbs = [];
+    var lines = [];
+    var current = null;
+    var closed = false
+    var max = maxLines - 1;
+
+    function emit(line) {
+      cbs.forEach(function(cb) { cb(line); });
+    }
+
+    return {
+      callback: function(cb) {
+        lines.forEach(function(l) { cb(l); });
+        cbs.push(cb);
+      },
+
+      append: function(str) {
+        if (closed) return;
+        if (str instanceof Buffer) str = '' + str;
+        if (!str || str.length === 0) return;
+
+        var newLines = str.split(nlRegexp);
+
+        if (newLines.length === 1) {
+          if (current !== null) {
+            current = current + newLines.shift();
+          } else {
+            current = newLines.shift();
+          }
+        } else {
+          if (current !== null) {
+            current = current + newLines.shift();
+            emit(current);
+            lines.push(current);
+          }
+
+          current = newLines.pop();
+
+          newLines.forEach(function(l) {
+            emit(l);
+            lines.push(l);
+          });
+
+          if (max > -1 && lines.length > max) {
+            lines.splice(0, lines.length - max);
+          }
+        }
+      },
+
+      get: function() {
+        if (current !== null) {
+          return lines.concat([current]).join('\n');
+        } else {
+          return lines.join('\n');
+        }
+      },
+
+      close: function() {
+        if (closed) return;
+
+        if (current !== null) {
+          emit(current);
+          lines.push(current);
+
+          if (max > -1 && lines.length > max) {
+            lines.shift();
+          }
+
+          current = null;
+        }
+
+        closed = true;
+      }
+    };
   }
 };

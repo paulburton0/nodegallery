@@ -9,9 +9,15 @@ function legacyDisposition(key) { return key.match(/^DISPOSITION:/); }
 
 function parseFfprobeOutput(out) {
   var lines = out.split(/\r\n|\r|\n/);
+
+  lines = lines.filter(function (line) {
+    return line.length > 0;
+  });
+
   var data = {
     streams: [],
-    format: {}
+    format: {},
+    chapters: []
   };
 
   function parseBlock(name) {
@@ -46,6 +52,9 @@ function parseFfprobeOutput(out) {
     if (line.match(/^\[stream/i)) {
       var stream = parseBlock('stream');
       data.streams.push(stream);
+    } else if (line.match(/^\[chapter/i)) {
+      var chapter = parseBlock('chapter');
+      data.chapters.push(chapter);
     } else if (line.toLowerCase() === '[format]') {
       data.format = parseBlock('format');
     }
@@ -88,7 +97,15 @@ module.exports = function(proto) {
     var input, index = null, options = [], callback;
 
     // the last argument should be the callback
-    callback = arguments[arguments.length - 1];
+    var callback = arguments[arguments.length - 1];
+
+    var ended = false
+    function handleCallback(err, data) {
+      if (!ended) {
+        ended = true;
+        callback(err, data);
+      }
+    };
 
     // map the arguments to the correct variable names
     switch (arguments.length) {
@@ -105,9 +122,10 @@ module.exports = function(proto) {
         break;
     }
 
+
     if (index === null) {
       if (!this._currentInput) {
-        return callback(new Error('No input specified'));
+        return handleCallback(new Error('No input specified'));
       }
 
       input = this._currentInput;
@@ -115,20 +133,16 @@ module.exports = function(proto) {
       input = this._inputs[index];
 
       if (!input) {
-        return callback(new Error('Invalid input index'));
+        return handleCallback(new Error('Invalid input index'));
       }
-    }
-
-    if (input.isStream) {
-      return callback(new Error('Cannot run ffprobe on stream input'));
     }
 
     // Find ffprobe
     this._getFfprobePath(function(err, path) {
       if (err) {
-        return callback(err);
+        return handleCallback(err);
       } else if (!path) {
-        return callback(new Error('Cannot find ffprobe'));
+        return handleCallback(new Error('Cannot find ffprobe'));
       }
 
       var stdout = '';
@@ -137,11 +151,28 @@ module.exports = function(proto) {
       var stderrClosed = false;
 
       // Spawn ffprobe
-      var ffprobe = spawn(path, ['-show_streams', '-show_format'].concat(options, input.source));
+      var src = input.isStream ? 'pipe:0' : input.source;
+      var ffprobe = spawn(path, ['-show_streams', '-show_format'].concat(options, src));
 
-      ffprobe.on('error', function(err) {
-        callback(err);
-      });
+      if (input.isStream) {
+        // Skip errors on stdin. These get thrown when ffprobe is complete and
+        // there seems to be no way hook in and close stdin before it throws.
+        ffprobe.stdin.on('error', function(err) {
+          if (['ECONNRESET', 'EPIPE'].indexOf(err.code) >= 0) { return; }
+          handleCallback(err);
+        });
+
+        // Once ffprobe's input stream closes, we need no more data from the
+        // input
+        ffprobe.stdin.on('close', function() {
+            input.source.pause();
+            input.source.unpipe(ffprobe.stdin);
+        });
+
+        input.source.pipe(ffprobe.stdin);
+      }
+
+      ffprobe.on('error', callback);
 
       // Ensure we wait for captured streams to end before calling callback
       var exitError = null;
@@ -156,7 +187,7 @@ module.exports = function(proto) {
               exitError.message += '\n' + stderr;
             }
 
-            return callback(exitError);
+            return handleCallback(exitError);
           }
 
           // Process output
@@ -189,7 +220,7 @@ module.exports = function(proto) {
             }
           });
 
-          callback(null, data);
+          handleCallback(null, data);
         }
       }
 

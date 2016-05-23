@@ -2,21 +2,7 @@
 
 This library abstracts the complex command-line usage of ffmpeg into a fluent, easy to use node.js module. In order to be able to use this module, make sure you have [ffmpeg](http://www.ffmpeg.org) installed on your system (including all necessary encoding libraries like libmp3lame or libx264).
 
-> #### This is the documentation for fluent-ffmpeg 2.x
->
-> A major 2.0 version has been released. This release features lots of API cleanup and a cleaner syntax for most methods.
->
-> It has been designed to be mostly compatible with the previous fluent-ffmpeg version, but there are some incompatibilities, mainly because deprecated APIs in 1.x have been removed.  See [the 2.x migration wiki page](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/wiki/Migrating-from-fluent-ffmpeg-1.x) for information on how to migrate.
->
-> Please take care to update your package.json files if you want to keep using version 1.x:
-> ```js
-{
-  "dependencies": {
-    "fluent-ffmpeg": "~1.7"
-  }
-}
-```
->
+> This is the documentation for fluent-ffmpeg 2.x.
 > You can still access the code and documentation for fluent-ffmpeg 1.7 [here](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/tree/1.x).
 
 ## Installation
@@ -97,6 +83,7 @@ The following options are available:
 * `preset` or `presets`: directory to load module presets from (defaults to the `lib/presets` directory in fluent-ffmpeg tree)
 * `niceness` or `priority`: ffmpeg niceness value, between -20 and 20; ignored on Windows platforms (defaults to 0)
 * `logger`: logger object with `debug()`, `info()`, `warn()` and `error()` methods (defaults to no logging)
+* `stdoutLines`: maximum number of lines from ffmpeg stdout/stderr to keep in memory (defaults to 100, use 0 for unlimited storage)
 
 
 ### Specifying inputs
@@ -846,6 +833,17 @@ ffmpeg('/path/to/file.avi')
   });
 ```
 
+#### 'stderr': FFmpeg output
+
+The `stderr` event is emitted every time FFmpeg outputs a line to `stderr`.  It is emitted with a string containing the line of stderr (minus trailing new line characters).
+
+```js
+ffmpeg('/path/to/file.avi')
+  .on('stderr', function(stderrLine) {
+    console.log('Stderr output: ' + stderrLine);
+  });
+```
+
 #### 'error': transcoding error
 
 The `error` event is emitted when an error occurs when running ffmpeg or when preparing its execution.  It is emitted with an error object as an argument.  If the error happened during ffmpeg execution, listeners will also receive two additional arguments containing ffmpegs stdout and stderr.
@@ -861,14 +859,16 @@ ffmpeg('/path/to/file.avi')
 
 #### 'end': processing finished
 
-The `end` event is emitted when processing has finished.  Listeners receive no arguments, except when generating thumbnails (see below), in which case they receive an array of the generated filenames.
+The `end` event is emitted when processing has finished.  Listeners receive ffmpeg standard output and standard error as arguments, except when generating thumbnails (see below), in which case they receive an array of the generated filenames.
 
 ```js
 ffmpeg('/path/to/file.avi')
-  .on('end', function() {
+  .on('end', function(stdout, stderr) {
     console.log('Transcoding succeeded !');
   });
 ```
+
+`stdout` is empty when the command outputs to a stream.  Both `stdout` and `stderr` are limited by the `stdoutLines` option (defaults to 100 lines).
 
 
 ### Starting FFmpeg processing
@@ -1121,6 +1121,8 @@ ffmpeg('/path/to/file1.avi')
     console.dir(data);
   });
 ```
+
+**Warning:** ffprobe may be called with an input stream, but in this case *it will consume data from the stream*, and this data will no longer be available for ffmpeg.  Using both ffprobe and a transcoding command on the same input stream will most likely fail unless the stream is a live stream.  Only do this if you know what you're doing.
 
 The returned object is the same that is returned by running the following command from your shell (depending on your ffmpeg version you may have to replace `-of` with `-print_format`) :
 

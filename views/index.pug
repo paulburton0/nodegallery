@@ -1,0 +1,301 @@
+extends layout
+block content
+    - var pages;
+    - if (total <= 12){
+    -    pages = null;
+    - }
+    - else if(total % 12 > 0){
+    -    pages = parseInt(total / 12) + 1;
+    - }
+    - else {
+        - pages = total / 12;
+    - }
+
+    if content[content.length - 1] == 'end'
+        - var end = true;
+        - content.pop();
+    - var lastCrumb = breadcrumbs.pop();
+    - var crumbNum = 0
+
+    .truncate-ellipsis
+        ul.breadcrumb(style="width: 85%")
+            each crumb in breadcrumbs
+                - crumbNum++;
+                li
+                    a(tabindex="-1" accesskey=crumbNum title="Access Key: " + crumbNum href=crumb.path) #{crumb.name}
+            li 
+                span= lastCrumb.name
+        if auth
+            div(style="padding-right: 10px; white-space: nowrap; overflow: visible; background: #f5f5f5; text-align: right")
+                a(tabindex="-1" href="/logout") Logout
+    
+    .clearfix
+    br
+    div.container
+        center
+            if pages
+                - var prev = Number(start) - 12;
+                - var next = Number(start) + 12;
+                ul.pagination.hidden-xs.hidden-sm.hidden-md
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 12 || pages < 20 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+                ul.pagination.hidden-xs.hidden-sm.hidden-lg
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 9 || pages < 16 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+                ul.pagination.hidden-xs.hidden-md.hidden-lg
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 6 || pages < 10 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+            ul.pager.hidden-sm.hidden-md.hidden-lg
+                - var prev = Number(start) - 12;
+                - var next = Number(start) + 12;
+                if prev < 0
+                    li.previous.btn-lg.disabled 
+                        span.glyphicon.glyphicon-arrow-left
+                else
+                    li.previous.btn-lg
+                        a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                            span.glyphicon.glyphicon-arrow-left
+
+                - if(content.length < 12 || end )
+                    li.next.btn-lg.disabled
+                        a(tabindex="-1" href='#')
+                            span.glyphicon.glyphicon-arrow-right
+                - else
+                    li.next.btn-lg
+                        a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                            span.glyphicon.glyphicon-arrow-right
+            .clearfix
+            - var colnum = 1;
+            - var tabIndex = 1;
+                each item in content 
+                    - var itemTitle = item.name;
+                    - if(item.name.length > 23){
+                        - var nameBegin = item.name.substring(0,9);
+                        - var nameEnd = item.name.substring(item.name.length - 9);
+                        - item.name = nameBegin + '...' + nameEnd;
+                    - }
+                    .col-xs-12.col-sm-6.col-md-4.col-lg-3.center-block 
+                        if item.type == "directory"
+                            a(tabindex=tabIndex title=itemTitle href=item.relativePath).img-thumbnail
+                                span(style='font-size: 10em').glyphicon.glyphicon-folder-close
+                                br
+                                span #{item.name}
+                        else
+                            a(tabindex=tabindex title="itemTitle" href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                                img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
+                    - if(colnum % 2 == 0)
+                        .clearfix.visible-sm-block
+                    - if(colnum % 3 == 0)
+                        .clearfix.visible-md-block
+                    - if(colnum % 4 == 0)
+                        .clearfix.visible-lg-block
+                    - colnum++;
+                    - tabIndex++;
+
+            .clearfix
+            if pages
+                - var prev = Number(start) - 12;
+                - var next = Number(start) + 12;
+                ul.pagination.hidden-xs.hidden-sm.hidden-md
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 12 || pages < 20 ? 1 : eval(page > pages - 9 ? pages - 19 : page - 10); i < eval(page < 12 ? 21 : page + 10); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+                ul.pagination.hidden-xs.hidden-sm.hidden-lg
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 9 || pages < 16 ? 1 : eval(page > pages - 8 ? pages - 15 : page - 8); i < eval(page < 9 ? 19 : page + 9); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+                ul.pagination.hidden-xs.hidden-md.hidden-lg
+                    if ! start || start <= 1 
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                    else
+                        li
+                            a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                                span.glyphicon.glyphicon-arrow-left
+
+                    - var page = Number((start / 12) + 1)
+
+                    - for(i = page < 6 || pages < 10 ? 1 : eval(page > pages - 5 ? pages - 10 : page - 5); i < eval(page < 6 ? 12 : page + 6); i++){
+                        if i >= pages + 1
+                           - break;
+                            
+                        if start == (i * 12) - 12
+                            li.active
+                                span= i
+                        
+                        else
+                            li
+                                a(href=pathname + '?start=' + Number((i * 12) - 12))
+                                    span= i
+                    - } 
+                    - if(content.length < 12 || end )
+                        li.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                    - else
+                        li
+                            a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                                span.glyphicon.glyphicon-arrow-right
+
+            ul.pager.hidden-sm.hidden-md.hidden-lg
+                - var prev = Number(start) - 12;
+                - var next = Number(start) + 12;
+                if prev < 0
+                    li.previous.btn-lg.disabled 
+                        span.glyphicon.glyphicon-arrow-left
+                else
+                    li.previous.btn-lg
+                        a(tabindex="-1" title="Access Key: h" accesskey="h" href=pathname + '?start=' + prev)
+                            span.glyphicon.glyphicon-arrow-left
+
+                - if(content.length < 12 || end )
+                    li.next.btn-lg.disabled
+                        a(tabindex="-1" href='#')
+                            span.glyphicon.glyphicon-arrow-right
+                - else
+                    li.next.btn-lg
+                        a(tabindex="-1" title="Access Key: l" accesskey="l" href=pathname + '?start=' + next)
+                            span.glyphicon.glyphicon-arrow-right
+    div.footer
