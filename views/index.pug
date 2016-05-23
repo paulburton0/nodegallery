@@ -168,7 +168,7 @@ block content
                                 br
                                 span #{item.name}
                         else
-                            a(tabindex=tabindex title="itemTitle" href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
+                            a(tabindex=tabindex title=itemTitle href=item.relativePath + '?start=' + start + '&number=' + item.number).img-thumbnail 
                                 img(src=item.thumb, width=item.thumbWidth, height=item.thumbHeight)
                     - if(colnum % 2 == 0)
                         .clearfix.visible-sm-block
