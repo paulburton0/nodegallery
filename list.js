@@ -5,6 +5,8 @@ var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 var settings = require('../settings');
+var reverse = false;
+
 if(settings.useAuth){
     var auth = require('./auth');
 }
@@ -145,6 +147,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                         return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                     });
                     dirContents = dirDirs.concat(dirFiles);
+                        if(reverse){
+                            dirContents.reverse();
+                        }
                         dirContents.map(function(item, index){
                             item.number = index;    
                         });
@@ -170,6 +175,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
+                        if(reverse){
+                            dirContents.reverse();
+                        }
                         dirContents.map(function(item, index){
                             item.number = index;    
                         });
@@ -187,9 +195,12 @@ exports.getList = function(start, dir, relDir, userName, cb){
                                 return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                             });
                             dirContents = dirDirs.concat(dirFiles);
-                                dirContents.map(function(item, index){
-                                    item.number = index;    
-                                });
+                            if(reverse){
+                                dirContents.reverse();
+                            }
+                            dirContents.map(function(item, index){
+                                item.number = index;    
+                            });
 
                             return cb(null, dirContents);
                         }
@@ -208,6 +219,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                                 return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                             });
                             dirContents = dirDirs.concat(dirFiles);
+                            if(reverse){
+                                dirContents.reverse();
+                            }
                             dirContents.map(function(item, index){
                                 item.number = index;    
                             });
@@ -227,6 +241,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
+                        if(reverse){
+                            dirContents.reverse();
+                        }
                         dirContents.map(function(item, index){
                             item.number = index;    
                         });
@@ -243,6 +260,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                             return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
                         });
                         dirContents = dirDirs.concat(dirFiles);
+                        if(reverse){
+                            dirContents.reverse();
+                        }
                         dirContents.map(function(item, index){
                             item.number = index;    
                         });
