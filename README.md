@@ -24,8 +24,9 @@ To use nodegallery, follow these simple steps:
                        useauth: true,       <--- 'true' to require a login to match what's in the auth.js file  
                      }
   ```
+  
 
-2. If you want to use authentication and (rudimentary) access control, add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
+2. If you want to use authentication and (rudimentary) access control, set `useauth: true` in settings.js and add your login credentials to a file named 'auth.js' in the root of the application. The format of the auth.js file is:  
 
   ```
 
@@ -49,7 +50,7 @@ To use nodegallery, follow these simple steps:
 
   ```
 
-3. Copy the executable nodegallery script to your PATH. Then you can run nodegallery with the command  
+3. Copy the executable nodegallery script to somewhere in your $PATH. Then you can run nodegallery with the command  
 
   ```
     $ nodegallery start
