@@ -2,18 +2,26 @@
 ##What is nodegallery?  
 Nodegallery is a simple HTTP/S server that turns any directory with images and videos into a gallery site.  
 
+##What do I need?
+In order to use nodegallery, you need a working node.js (of course).  
+
+You will also need [GraphicsMagick](http://graphicsmagick.org) and a version of [FFmpeg](https://ffmpeg.org) that is capable of generating HTML5-compatible  WEBM and/or MP4 (h264/aac) videos. For a good guide on building your own FFmpeg with these capabilites, see FFmpeg's [Compilation Guide](https://trac.ffmpeg.org/wiki/CompilationGuide).  
+
+All the node.js library dependencies are included in this repository.
+
 ##How do I use it?  
 To use nodegallery, follow these simple steps:  
 1. Update settings.js for your application:  
 
   ```        
-    module.exports = { port : '3000',  <--- the port number you want nodegallery to listen on  
-                               sslKey : 'ssl/ssl-cert-snakeoil.key',   <--- the path to your SSL key file  
-                               sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
-                               sslCaCert : 'ssl/ca_cert.pem',  <--- only use this if you have a CA certificate (i.e. if you're not using a self-signed cert.)
-                               useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
-                               imageDirectory : '/home/myhomedir/Pictures' <--- The path to your root images directory  
-                               useauth: true,       <--- 'true' to require a login to match what's in the auth.js file  
+    module.exports = { 
+                       port : '3000',  <--- the port number you want nodegallery to listen on  
+                       sslKey : 'ssl/ssl-cert-snakeoil.key',   <--- the path to your SSL key file  
+                       sslCert : 'ssl/ssl-cert-snakeoil.pem',  <--- the path to your SSL certificate file  
+                       sslCaCert : 'ssl/ca_cert.pem',  <--- only use this if you have a CA certificate (i.e. if you're not using a self-signed cert.)
+                       useHttps : true,       <--- 'true' for HTTPS, undefined or false for HTTP  
+                       imageDirectory : '/home/myhomedir/Pictures' <--- The path to your root images directory  
+                       useauth: true,       <--- 'true' to require a login to match what's in the auth.js file  
                      }
   ```
 
@@ -64,7 +72,7 @@ Nodegallery will show images in the following formats:
 * GIF  
 * BMP  
 
-Nodegallery will also only include HTML 5-compatible WEBM and MP4 videos. Your videos must be converted/transcoded to one of these formats in order to view them in nodegallery.  
+Nodegallery will also only include HTML5-compatible WEBM and MP4 videos. Your videos must be converted/transcoded to one of these formats in order to view them in nodegallery.  
 
 Files and directories that start with a '.' (period) will not appear in nodegallery.
 
