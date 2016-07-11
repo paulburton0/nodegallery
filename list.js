@@ -4,7 +4,7 @@ var im = require('gm');
 var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
-var settings = require('../settings');
+var settings = require('./settings');
 var reverse = false;
 
 if(settings.useAuth){
@@ -553,6 +553,7 @@ exports.cleanup = function(pathname, absPath){
 
     fs.readdir(thumbDir, function(err, files){
         if(err || ! files){
+            console.error(err);
             return;
         }
         files.map(function(item){
@@ -564,6 +565,9 @@ exports.cleanup = function(pathname, absPath){
                     fs.stat(originalPath, function(err, stats){
                         if(err && err.code == 'ENOENT'){
                             fs.stat(thumbPath, function(err, stats){
+                                if(err){
+                                    console.error(err);
+                                }
                                 stats.isFile() ? fs.unlink(thumbPath, function(){return}) : rimraf(thumbPath, function(){return});
                             });
                         }
