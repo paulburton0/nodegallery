@@ -9,8 +9,12 @@ router.get('/login', function(req, res){
 });
 
 router.post('/login' , function(req, res) {
-    if(auth[req.body.user] && req.body.password == auth[req.body.user].password){
-        res.cookie(cookieName, req.body.user, { maxAge: 604800000, httpOnly: false }); 
+    username = req.body.user.toLowerCase();
+    if(username.substr(-1) == ' '){
+        username = username.trimRight();    
+    }
+    if(auth[username] && req.body.password == auth[username].password){
+        res.cookie(cookieName, username, { maxAge: 604800000, httpOnly: false }); 
         res.redirect('/');
     }
     else{
