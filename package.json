@@ -9,7 +9,7 @@
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.2",
     "debug": "~2.2.0",
-    "express": "~4.13.4",
+    "express": "~4.14.0",
     "fluent-ffmpeg": "git://github.com/fluent-ffmpeg/node-fluent-ffmpeg.git#master",
     "gm": "^1.22.0",
     "mkdirp": "^0.5.1",

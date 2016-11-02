@@ -1,16 +1,9 @@
 extends layout
 block content
     script(type='text/javascript').
-        $(window).keypress(function(e){
-            var video = document.getElementById("videoPlayer");
-            if (e.which == 32) {
-                if (video.paused == true){
-                    video.play();
-                }
-                else{
-                    video.pause();
-                }
-            }
+        var video = document.getElementById("videoPlayer");
+        video.addEventListener('click', function(){
+            video.play();
         });
     - number = Number(number);
     - var lastCrumb = breadcrumbs.pop();
