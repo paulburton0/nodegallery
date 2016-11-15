@@ -22,9 +22,10 @@ if(settings.useHttps){
       key: fs.readFileSync(settings.sslKey),
       cert: fs.readFileSync(settings.sslCert)
     };
-}
-if(settings.sslCaCert){
-    options.ca = fs.readFileSync(settings.sslCaCert);
+    
+    if(settings.sslCaCert){
+      options.ca = fs.readFileSync(settings.sslCaCert);
+    }
 }
 
 /**

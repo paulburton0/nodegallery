@@ -5,7 +5,7 @@ var ffmpeg = require('fluent-ffmpeg');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 var settings = require('./settings');
-var reverse = false;
+var reverse = settings.reverseSort;
 
 if(settings.useAuth){
     var auth = require('./auth');
