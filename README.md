@@ -40,8 +40,8 @@ To use nodegallery, follow these simple steps:
                                  }
                      }
   ```
-
-  Note that access controls are only directory-based. To grant a user full access to all directories, use the following:
+  Note the leading slash in each directory name. Without it, the permissions will not be propoerly enforced.
+  Also note that access controls are only directory-based. To grant a user full access to all directories, use the following:
 
   ```
     

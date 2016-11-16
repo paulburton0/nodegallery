@@ -30,7 +30,7 @@ function checkPerms(userName, directory){
         if(/\/$/.test(directory)){
             directory = directory.substring(0,directory.length-1);
         }
-        if(auth[userName].permissions[directory] == 'deny'){
+        if(settings.useAuth && auth[userName].permissions[directory] == 'deny'){
             return false;    
         }
         else{
@@ -82,7 +82,8 @@ exports.getList = function(start, dir, relDir, userName, cb){
                     }
                 }
 
-                else if(stats && stats.isDirectory() && auth[userName].permissions != null){
+                else if(stats && stats.isDirectory() && (!settings.useAuth || auth[userName].permissions != null)){
+                    console.error(path.join(relDir, item));
                     if(checkPerms(userName, path.join(relDir, item))){
                         filesTemp.push(item)
                         iterator--;
@@ -95,16 +96,6 @@ exports.getList = function(start, dir, relDir, userName, cb){
                     }
                 }
 
-                else if(stats && stats.isDirectory() && auth[userName].permissions == null){
-                    filesTemp.push(item);
-                    iterator--;
-                    if(! iterator){
-                        if(filesTemp.length == 0){
-                            errCode = '999';
-                            return cb(errCode);
-                        }
-                    }
-                }
                 else if(stats && stats.isFile() && /\.(jpe?g|png|gif|bmp|webm|mp4)$/i.test(item)){
                     filesTemp.push(item);
                     iterator--;
@@ -185,7 +176,7 @@ exports.getList = function(start, dir, relDir, userName, cb){
                         return cb(null, dirContents);
                     }
                 }
-                else if(stats && stats.isDirectory() && auth[userName].permissions != null){
+                else if(stats && stats.isDirectory() && (!settings.useAuth || auth[userName].permissions != null)){
                     if(! checkPerms(userName, item.relativePath)){
                         if(index == files.length - 1){
                             dirDirs.sort(function(a, b){
