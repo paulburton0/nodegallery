@@ -5,7 +5,9 @@ var url = require('url');
 var fs = require('fs');
 var router = express.Router();
 var settings = require('../settings');
-var auth = require('../auth');
+if (settings.useAuth){
+    var auth = require('../auth');
+}
 
 var imageDir = settings.imageDirectory;
 var cookieName = __dirname.split('/').slice(-2,-1).toString();
@@ -87,7 +89,7 @@ router.get(/\/.*/, function(req, res, next){
     }
     else{
         var pathname = url.parse(req.originalUrl, false).pathname;
-        if(/\.(webm|mp4)/i.test(pathname)){ // If the requested resource is a webm video, skip to the next route handler.
+        if(/\.(webm|mp4)/i.test(pathname)){ // If the requested resource is a webm or mp4 video, skip to the next route handler.
             return next();
         } 
         var start = url.parse(req.originalUrl, true).query.start;
@@ -99,11 +101,18 @@ router.get(/\/.*/, function(req, res, next){
         var absImagePath = '/' + path.join(imageRoot, pathname);
         var relParentDir = pathname.split('/').slice(0, -1).join('/');
         var absParentDir = path.join(settings.imageDirectory, relParentDir);
+        var imageName = pathname.split('/').slice(-1).toString();
         dirlist.getList(start, absParentDir, relParentDir, req.cookies[cookieName], function(err, list){
             if(err){
                 console.error(err);
             }
-            return res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+            try {
+                var summaries = JSON.parse(fs.readFileSync(path.join(absParentDir, '.summary'), 'utf8'));
+                var summary = summaries[imageName];
+            } catch (err) {
+                console.error('No .summary file for this folder.');
+            }
+            return res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary});
         });
     }
 }, function(req, res, next){
@@ -122,11 +131,18 @@ router.get(/\/.*/, function(req, res, next){
         var absImagePath = '/' + path.join(imageRoot, pathname);
         var relParentDir = pathname.split('/').slice(0, -1).join('/');
         var absParentDir = path.join(settings.imageDirectory, relParentDir);
+        var imageName = pathname.split('/').slice(-1).toString();
         dirlist.getList(start, absParentDir, relParentDir, req.cookies[cookieName], function(err, list){
             if(err){
                 console.error(err);
             }
-            return res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth});
+            try {
+                var summaries = JSON.parse(fs.readFileSync(path.join(absParentDir, '.summary'), 'utf8'));
+                var summary = summaries[imageName];
+            } catch (err) {
+                console.error('No .summary file for this folder.');
+            }
+            return res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary});
         });
     }
 });

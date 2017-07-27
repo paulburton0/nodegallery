@@ -1,4 +1,7 @@
-var auth = require('../auth');
+var settings = require('../settings');
+if(settings.useAuth){
+    var auth = require('../auth');
+}
 var express = require('express');
 var router = express.Router();
 
