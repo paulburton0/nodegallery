@@ -23,6 +23,9 @@ function contains(a, obj) {
 }
 
 function checkPerms(userName, directory){
+    if(!settings.useAuth || auth[userName].permissions == null){
+        return true;
+    }
     if(/^\/$/.test(directory)){
         return true;
     }
@@ -30,7 +33,7 @@ function checkPerms(userName, directory){
         if(/\/$/.test(directory)){
             directory = directory.substring(0,directory.length-1);
         }
-        if(settings.useAuth && auth[userName].permissions[directory] == 'deny'){
+        if(auth[userName].permissions[directory] == 'deny'){
             return false;    
         }
         else{
@@ -82,10 +85,9 @@ exports.getList = function(start, dir, relDir, userName, cb){
                     }
                 }
 
-                else if(stats && stats.isDirectory() && (!settings.useAuth || auth[userName].permissions != null)){
-                    console.error(path.join(relDir, item));
+                else if(stats && stats.isDirectory()){
                     if(checkPerms(userName, path.join(relDir, item))){
-                        filesTemp.push(item)
+                        filesTemp.push(item);
                         iterator--;
                         if(! iterator){
                             if(filesTemp.length == 0){
@@ -176,7 +178,7 @@ exports.getList = function(start, dir, relDir, userName, cb){
                         return cb(null, dirContents);
                     }
                 }
-                else if(stats && stats.isDirectory() && (!settings.useAuth || auth[userName].permissions != null)){
+                else if(stats && stats.isDirectory()){
                     if(! checkPerms(userName, item.relativePath)){
                         if(index == files.length - 1){
                             dirDirs.sort(function(a, b){
