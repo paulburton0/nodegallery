@@ -45,6 +45,11 @@ block content
 
     center
         img(src=image).img-responsive.center-block.img-centered.padding-0
+        - if(tags){
+            div.well
+                - tags.join(',');
+                p #{tags}
+        - }
         - if(summary){
             div.well
                 p !{summary}

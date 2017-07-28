@@ -112,7 +112,13 @@ router.get(/\/.*/, function(req, res, next){
             } catch (err) {
                 console.error('No .summary file for this folder.');
             }
-            return res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary});
+            try {
+                var tags = JSON.parse(fs.readFileSync(path.join(absParentDir, '.tags'), 'utf8'));
+                var tags = tags[imageName];
+            } catch (err) {
+                console.error('No .tags file for this folder.');
+            }
+            return res.render('image', {title: pathname, image: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary, tags: tags});
         });
     }
 }, function(req, res, next){
@@ -142,7 +148,13 @@ router.get(/\/.*/, function(req, res, next){
             } catch (err) {
                 console.error('No .summary file for this folder.');
             }
-            return res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary});
+            try {
+                var tags = JSON.parse(fs.readFileSync(path.join(absParentDir, '.tags'), 'utf8'));
+                var tags = tags[imageName];
+            } catch (err) {
+                console.error('No .tags file for this folder.');
+            }
+            return res.render('video', {title: pathname, webm: absImagePath, pathname: pathname, start: start, number: number, breadcrumbs: getBreadcrumbs(pathname), list: list, auth: settings.useAuth, summary: summary, tags: tags});
         });
     }
 });
