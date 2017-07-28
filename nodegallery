@@ -35,7 +35,7 @@ case "$1" in
             echo "done."
         else
             echo -n "Restarting $appname ... "
-            pkill -f "$appname" 2>/dev/null
+            pkill -o -f "$appname" 2>/dev/null
             cd $apppath
             exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
             echo "done. "
