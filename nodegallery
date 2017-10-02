@@ -23,7 +23,7 @@ case "$1" in
             echo "$appname is not running."
         else
             echo -n "Stopping $appname ... "
-            pkill -f "$appname" 2>/dev/null
+            pkill -o -f "$appname" 2>/dev/null
             echo "done."
         fi
         ;;
