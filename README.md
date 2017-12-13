@@ -1,16 +1,21 @@
-#Nodegallery  
-##What is nodegallery?  
+# Nodegallery  
+
+## What is nodegallery?  
+
 Nodegallery is a simple HTTP/S server that turns any directory with images and videos into a gallery site.  
 
-##What do I need?
+## What do I need?
+
 In order to use nodegallery, you need a working node.js (of course).  
 
 You will also need [GraphicsMagick](http://graphicsmagick.org) and a version of [FFmpeg](https://ffmpeg.org) that is capable of generating HTML5-compatible  WEBM and/or MP4 (h264/aac) videos. For a good guide on building your own FFmpeg with these capabilites, see FFmpeg's [Compilation Guide](https://trac.ffmpeg.org/wiki/CompilationGuide).  
 
 All the node.js library dependencies are included in this repository.
 
-##How do I use it?  
+## How do I use it?  
+
 To use nodegallery, follow these simple steps:  
+
 1. Update settings.js for your application:  
 
   ```        
@@ -65,8 +70,10 @@ To use nodegallery, follow these simple steps:
   
 4. You're done. Navigate to your nodegallery to see your pictures and videos.  
 
-##Notes  
+## Notes  
+
 Nodegallery will show images in the following formats:  
+
 * JPEG (with extenstion jpg or jpeg)  
 * PNG  
 * GIF  
