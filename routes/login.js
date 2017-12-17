@@ -1,3 +1,4 @@
+var crypto = require('crypto');
 var settings = require('../settings');
 if(settings.useAuth){
     var auth = require('../auth');
@@ -13,10 +14,11 @@ router.get('/login', function(req, res){
 
 router.post('/login' , function(req, res) {
     username = req.body.user.toLowerCase();
+    var pwdHash = crypto.createHash('sha256').update(req.body.password).digest('hex');
     if(username.substr(-1) == ' '){
         username = username.trimRight();    
     }
-    if(auth[username] && req.body.password == auth[username].password){
+    if(auth[username] && pwdHash == auth[username].password){
         res.cookie(cookieName, username, { maxAge: 604800000, httpOnly: false }); 
         res.redirect('/');
     }
