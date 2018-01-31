@@ -4,3 +4,4 @@ ssl/*.crt
 ssl/*.key
 auth.js
 logs/
+node_modules
