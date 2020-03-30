@@ -356,7 +356,6 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                             scaleWidth = 200;
                                             scaleHeight = -1;
                                         }
-
                                         ffmpeg(item.absolutePath)
                                             // If there's an error generating the thumbnail, use a generic image.
                                             .on('error', function(err, stdout, stderr){
@@ -393,7 +392,14 @@ exports.composeResults= function(start, relDir, dirContents, cb){
                                             })
                                             .seekInput(thumbnailTime) // Get the thumbnail frame from 5 seconds into the video.
                                             .frames(1)
-                                            .complexFilter(['scale=w=' + scaleWidth + ':h=' + scaleHeight + '[rescaled]', {filter: 'crop', options: {w: cropWidth, h: cropHeight, x: cropX, y: cropY}, inputs: 'rescaled'}])
+                                            .complexFilter(
+                                                ['scale=' + scaleWidth + ':' + scaleHeight + '[rescaled]', 
+                                                    {
+                                                        filter: 'crop', options: {w: cropWidth, h: cropHeight, x: cropX, y: cropY}, 
+                                                        inputs: 'rescaled'
+                                                    }
+                                                ]
+                                            )
                                             .save(item.thumbAbsolutePath);
                                     });
                                 }
